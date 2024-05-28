@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+	// Seleciona os elementos da interface
 	const sendMessageButton = document.getElementById("sendMessage");
 	const chatInput = document.getElementById("chatInput");
 	const chatWindow = document.getElementById("chatWindow");
@@ -7,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	let chatId = null;
 	let mediaRecorder;
 
+	// Função para adicionar mensagens ao chat
 	function addMessageToChat(content, isUser = true) {
 		const messageDiv = document.createElement("div");
 		messageDiv.className = isUser ? "text-end" : "text-start";
@@ -21,7 +23,9 @@ document.addEventListener("DOMContentLoaded", () => {
 		chatWindow.scrollTop = chatWindow.scrollHeight;
 	}
 
+	// Função para enviar mensagens de chat para o servidor
 	async function sendChatMessage(message) {
+		// Envia a mensagem para o serviço de chat
 		const response = await fetch("/openai/chat", {
 			method: "POST",
 			headers: {
@@ -34,21 +38,21 @@ document.addEventListener("DOMContentLoaded", () => {
 			const data = await response.json();
 			chatId = data.chat_id;
 
-			// Adicionar mensagem de "processando"
+			// Adiciona mensagem de "processando"
 			addMessageToChat("Chat está processando sua mensagem...", false);
 
-			// Converter resposta para fala
+			// Converte resposta para fala
 			const audio = await textToSpeech(data.response);
 			if (audio) {
-				// Remover mensagem de "processando" e adicionar a resposta ao chat
+				// Remove mensagem de "processando" e adiciona a resposta ao chat
 				chatWindow.removeChild(chatWindow.lastChild);
 				addMessageToChat(data.response, false);
-				// Quando o áudio terminar, destacar a resposta no chat
+				// Quando o áudio terminar, destaca a resposta no chat
 				audio.onended = () => {
 					chatWindow.lastChild.classList.add("highlight");
 				};
 			} else {
-				// Remover mensagem de "processando" se houver falha no TTS
+				// Remove mensagem de "processando" se houver falha no TTS
 				chatWindow.removeChild(chatWindow.lastChild);
 				addMessageToChat(data.response, false);
 			}
@@ -57,6 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 	}
 
+	// Evento de clique para enviar mensagem
 	sendMessageButton.addEventListener("click", () => {
 		const message = chatInput.value;
 		if (message.trim() === "") {
@@ -69,6 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		sendChatMessage(message);
 	});
 
+	// Evento de clique para iniciar gravação
 	startRecordingButton.addEventListener("click", () => {
 		startRecording(
 			(recorder) => {
@@ -85,6 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		);
 	});
 
+	// Evento de clique para parar gravação
 	stopRecordingButton.addEventListener("click", () => {
 		if (mediaRecorder && mediaRecorder.state !== "inactive") {
 			mediaRecorder.stop();

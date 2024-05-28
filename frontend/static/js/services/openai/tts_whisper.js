@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+	// Seleciona os elementos da interface
 	const convertToSpeechButton = document.getElementById("convertToSpeech");
 	const textToConvert = document.getElementById("textToConvert");
 	const startRecordingButton = document.getElementById("startRecording");
@@ -7,11 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
 	const transcriptionCard = document.getElementById("transcriptionCard");
 	let mediaRecorder;
 
+	// Função para exibir a transcrição
 	function showTranscription(transcription) {
 		transcriptionOutput.innerHTML = transcription;
 		transcriptionCard.style.display = "block";
 	}
 
+	// Evento de clique para converter texto em fala
 	convertToSpeechButton.addEventListener("click", async () => {
 		const text = textToConvert.value;
 		if (text.trim() === "") {
@@ -19,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			return;
 		}
 
+		// Envia o texto para o serviço TTS
 		const response = await fetch("/openai/tts", {
 			method: "POST",
 			headers: {
@@ -37,6 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 	});
 
+	// Evento de clique para iniciar gravação
 	startRecordingButton.addEventListener("click", () => {
 		startRecording(
 			(recorder) => {
@@ -53,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		);
 	});
 
+	// Evento de clique para parar gravação
 	stopRecordingButton.addEventListener("click", () => {
 		if (mediaRecorder && mediaRecorder.state !== "inactive") {
 			mediaRecorder.stop();

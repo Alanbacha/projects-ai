@@ -1,51 +1,39 @@
 from openai import OpenAI
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
-from typing import Optional
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
-import uuid
+import io
 
+# Carrega variáveis de ambiente do arquivo .env
 load_dotenv()
 
+# Cria um roteador para o serviço TTS
 router = APIRouter()
 api_key = os.getenv("OPENAI_API_KEY")
 
-class ChatRequest(BaseModel):
-    chat_id: Optional[str] = Field(default=None)
-    message: str
+# Modelo de solicitação para o serviço TTS
+class TextToSpeechRequest(BaseModel):
+    text: str
 
-# Dicionário para armazenar os históricos de chat
-chat_histories = {}
-
-@router.post("/chat")
-async def chat_service(request: ChatRequest):
+@router.post("/tts")
+async def tts_service(request: TextToSpeechRequest):
+    # Cria uma instância do cliente OpenAI
     client = OpenAI(api_key=api_key)
-
-    # Se não houver chat_id, criar um novo chat
-    if request.chat_id is None:
-        chat_id = str(uuid.uuid4())
-        chat_histories[chat_id] = [{"role": "system", "content": "You are chatting with Axel, your assistant."}]
-    else:
-        chat_id = request.chat_id
-
-    # Adicionar a mensagem do usuário ao histórico
-    chat_histories[chat_id].append({"role": "user", "content": request.message})
-
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=chat_histories[chat_id]
+        # Envia o texto para o serviço TTS
+        response = client.audio.speech.create(
+            model="tts-1-hd",
+            voice="alloy",
+            input=request.text
         )
         
-        # Acessar corretamente a mensagem retornada
-        chat_response = response.choices[0].message.content
-        # Adicionar a resposta do assistente ao histórico
-        chat_histories[chat_id].append({"role": "assistant", "content": chat_response})
-
-        return JSONResponse(content={"chat_id": chat_id, "response": chat_response})
+        audio_stream = io.BytesIO(response.content)
+        return StreamingResponse(audio_stream, media_type="audio/mpeg")
     except Exception as e:
+        # Retorna um erro 500 em caso de falha
         raise HTTPException(status_code=500, detail=str(e))
 
-chatRouter = router
+# Define o roteador para ser incluído no controlador principal
+ttsRouter = router

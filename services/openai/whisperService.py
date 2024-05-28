@@ -1,34 +1,44 @@
 from openai import OpenAI
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File
 from fastapi.responses import JSONResponse
 from io import BytesIO
 import os
 from dotenv import load_dotenv
 
+# Carrega variáveis de ambiente do arquivo .env
 load_dotenv()
 
+# Cria um roteador para o serviço Whisper
 router = APIRouter()
 api_key = os.getenv("OPENAI_API_KEY")
 
 @router.post("/whisper")
 async def whisper_service(file: UploadFile = File(...)):
+    # Cria uma instância do cliente OpenAI
     client = OpenAI(api_key=api_key)
     try:
+        # Lê o conteúdo do arquivo de áudio
         audio_bytes = await file.read()
-        # Assegurar que o formato do arquivo é webm
+        # Verifica se o formato do arquivo é suportado
         if file.content_type != 'audio/webm':
             raise HTTPException(status_code=400, detail="Unsupported file format")
 
+        # Converte o áudio para um objeto BytesIO
         audio_io = BytesIO(audio_bytes)
         audio_io.name = 'audio.webm'
 
+        # Envia o arquivo de áudio para o serviço Whisper
         response = client.audio.transcriptions.create(
             model="whisper-1",
             file=audio_io
         )
 
-        print("Response from OpenAI API:", response)  # Adicione esta linha para ver a resposta no console
+        transcription = response["text"]
 
-        return JSONResponse(content={"transcription": response.text})
+        return JSONResponse(content={"transcription": transcription})
     except Exception as e:
+        # Retorna um erro 500 em caso de falha
         raise HTTPException(status_code=500, detail=str(e))
+
+# Define o roteador para ser incluído no controlador principal
+whisperRouter = router
