@@ -1,0 +1,34 @@
+{% extends "layout.html" %} {% block title %}Serviços OpenAI{% endblock %} {% block head %}
+<link rel="stylesheet" href="/static/css/services/openai/index.css" />
+{% endblock %} {% block content %}
+<div class="card my-2">
+	<div class="card-body">
+		<h1 class="card-title">Serviços OpenAI</h1>
+		<p class="card-text">Explore os serviços disponíveis:</p>
+		<div class="card-group">
+			<div class="card">
+				<a href="/openai_services/tts_whisper">
+					<img src="/static/images/tts_whisper.webp" class="card-img-top" alt="TTS e Whisper" />
+				</a>
+				<div class="card-body bg-light text-dark">
+					<h5 class="card-title"><i class="bi bi-volume-up"></i> TTS e Whisper</h5>
+					<p class="card-text">Serviços de Texto para Fala e Transcrição.</p>
+					<a href="/openai_services/tts_whisper" class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Acessar</a>
+				</div>
+			</div>
+			<div class="card">
+				<a href="/openai_services/chat">
+					<img src="/static/images/chat.webp" class="card-img-top" alt="Chat" />
+				</a>
+				<div class="card-body bg-light text-dark">
+					<h5 class="card-title"><i class="bi bi-chat"></i> Chat</h5>
+					<p class="card-text">Serviços de Chat da OpenAI.</p>
+					<a href="/openai_services/chat" class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Acessar</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %} {% block scripts %}
+<script src="/static/js/services/openai/index.js" defer></script>
+{% endblock %}

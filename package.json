@@ -1,0 +1,14 @@
+{
+	"name": "projects-ai",
+	"version": "1.0.0",
+	"description": "Projeto IA Conversacional com FastAPI e Bootstrap",
+	"main": "main.py",
+	"scripts": {
+		"start": "uvicorn main:app --reload --port 8001",
+		"build": "node build.js"
+	},
+	"dependencies": {
+		"bootstrap": "^5.3.3",
+		"bootstrap-icons": "^1.11.3"
+	}
+}

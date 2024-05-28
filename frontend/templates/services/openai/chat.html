@@ -1,0 +1,26 @@
+{% extends "layout.html" %} {% block title %}Chat OpenAI{% endblock %} {% block head %}
+<link rel="stylesheet" href="/static/css/services/openai/chat.css" />
+{% endblock %} {% block content %}
+<div class="card my-2">
+	<div class="card-body">
+		<h1 class="card-title">Chat OpenAI</h1>
+		<p class="card-text">Interaja com o modelo de chat da OpenAI.</p>
+
+		<!-- Bloco para o serviço de chat -->
+		<div class="card my-2">
+			<div class="card-body">
+				<h5 class="card-title">Chat com IA</h5>
+				<div id="chatWindow" class="mb-3" style="height: 300px; overflow-y: auto; background-color: #f8f9fa; padding: 10px">
+					<!-- Mensagens do chat serão inseridas aqui -->
+				</div>
+				<textarea id="chatInput" class="form-control mb-3" placeholder="Digite sua mensagem..."></textarea>
+				<button id="sendMessage" class="btn btn-primary mb-3"><i class="bi bi-chat-right-dots"></i> Enviar Mensagem</button>
+				<button id="startRecording" class="btn btn-secondary mb-3"><i class="bi bi-mic-fill"></i> Enviar Áudio</button>
+				<button id="stopRecording" class="btn btn-danger mb-3" style="display: none"><i class="bi bi-stop-fill"></i> Parar Gravação</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %} {% block scripts %}
+<script src="/static/js/services/openai/chat.js" defer></script>
+{% endblock %}
