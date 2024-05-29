@@ -33,9 +33,7 @@ async def whisper_service(file: UploadFile = File(...)):
             file=audio_io
         )
 
-        transcription = response["text"]
-
-        return JSONResponse(content={"transcription": transcription})
+        return JSONResponse(content={"transcription": response.text})
     except Exception as e:
         # Retorna um erro 500 em caso de falha
         raise HTTPException(status_code=500, detail=str(e))

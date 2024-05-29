@@ -1,69 +1,70 @@
-document.addEventListener("DOMContentLoaded", () => {
-	// Seleciona os elementos da interface
-	const convertToSpeechButton = document.getElementById("convertToSpeech");
-	const textToConvert = document.getElementById("textToConvert");
-	const startRecordingButton = document.getElementById("startRecording");
-	const stopRecordingButton = document.getElementById("stopRecording");
-	const transcriptionOutput = document.getElementById("transcriptionOutput");
-	const transcriptionCard = document.getElementById("transcriptionCard");
+const TTSWhisperApp = (() => {
+	const Selectors = {
+		ConvertToSpeechButton: "#convertToSpeech",
+		TextToConvert: "#textToConvert",
+		StartRecordingButton: "#startRecording",
+		StopRecordingButton: "#stopRecording",
+		TranscriptionOutput: "#transcriptionOutput",
+		TranscriptionCard: "#transcriptionCard",
+		ParentSelector: "#ttsWhisperApp",
+	};
+
 	let mediaRecorder;
 
-	// Função para exibir a transcrição
-	function showTranscription(transcription) {
-		transcriptionOutput.innerHTML = transcription;
-		transcriptionCard.style.display = "block";
-	}
+	const Init = () => {
+		$(function () {
+			LoadEvents();
+		});
+	};
 
-	// Evento de clique para converter texto em fala
-	convertToSpeechButton.addEventListener("click", async () => {
-		const text = textToConvert.value;
+	const LoadEvents = () => {
+		$(Selectors.ParentSelector).on("click", Selectors.ConvertToSpeechButton, ConvertToSpeech).on("click", Selectors.StartRecordingButton, StartRecording).on("click", Selectors.StopRecordingButton, StopRecording);
+	};
+
+	const ShowTranscription = (transcription) => {
+		$(Selectors.TranscriptionOutput).html(transcription);
+		$(Selectors.TranscriptionCard).show();
+	};
+
+	const ConvertToSpeech = async () => {
+		const text = $(Selectors.TextToConvert).val();
 		if (text.trim() === "") {
-			showToast("Digite um texto para converter.");
+			CommonApp.ShowToast("Digite um texto para converter.");
 			return;
 		}
 
-		// Envia o texto para o serviço TTS
-		const response = await fetch("/openai/tts", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ text }),
-		});
-
-		if (response.ok) {
-			const audioBlob = await response.blob();
-			const audioUrl = URL.createObjectURL(audioBlob);
-			const audio = new Audio(audioUrl);
-			audio.play();
-		} else {
-			showToast("Falha ao converter texto para fala.");
+		const audio = await CommonApp.TextToSpeech(text);
+		if (!audio) {
+			CommonApp.ShowToast("Falha ao converter texto para fala.");
 		}
-	});
+	};
 
-	// Evento de clique para iniciar gravação
-	startRecordingButton.addEventListener("click", () => {
-		startRecording(
+	const StartRecording = () => {
+		$(Selectors.ConvertToSpeechButton).prop("disabled", true);
+		CommonApp.StartRecording(
 			(recorder) => {
 				mediaRecorder = recorder;
-				startRecordingButton.style.display = "none";
-				stopRecordingButton.style.display = "inline-block";
-				transcriptionCard.style.display = "none";
+				$(Selectors.StartRecordingButton).hide();
+				$(Selectors.StopRecordingButton).show();
+				$(Selectors.TranscriptionCard).hide();
 			},
 			(transcription) => {
-				showTranscription(transcription);
-				startRecordingButton.style.display = "inline-block";
-				stopRecordingButton.style.display = "none";
+				ShowTranscription(transcription);
+				$(Selectors.StartRecordingButton).show();
+				$(Selectors.StopRecordingButton).hide();
+				$(Selectors.ConvertToSpeechButton).prop("disabled", false);
 			}
 		);
-	});
+	};
 
-	// Evento de clique para parar gravação
-	stopRecordingButton.addEventListener("click", () => {
+	const StopRecording = () => {
 		if (mediaRecorder && mediaRecorder.state !== "inactive") {
 			mediaRecorder.stop();
-			startRecordingButton.style.display = "inline-block";
-			stopRecordingButton.style.display = "none";
+			$(Selectors.StartRecordingButton).show();
+			$(Selectors.StopRecordingButton).hide();
 		}
-	});
-});
+	};
+
+	Init();
+	return {};
+})();

@@ -4,7 +4,7 @@ const path = require("path");
 
 // Instalar dependências do npm
 console.log("Installing npm dependencies...");
-execSync("npm install", { stdio: "inherit" });
+execSync("npm install -s", { stdio: "inherit" });
 
 // Função para copiar arquivos
 function copyFile(src, dest) {
@@ -13,7 +13,7 @@ function copyFile(src, dest) {
 		fs.mkdirSync(destDir, { recursive: true });
 	}
 	fs.copyFileSync(src, dest);
-	console.log(`Copied: ${src} -> ${dest}`);
+	//console.log(`Copied: ${src} -> ${dest}`);
 }
 
 // Arquivos e diretórios a serem copiados
@@ -25,9 +25,12 @@ const filesToCopy = [
 	{ src: "node_modules/bootstrap-icons/font/bootstrap-icons.css", dest: "frontend/static/vendor/bootstrap-icons/bootstrap-icons.css" },
 	{ src: "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff", dest: "frontend/static/vendor/bootstrap-icons/fonts/bootstrap-icons.woff" },
 	{ src: "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2", dest: "frontend/static/vendor/bootstrap-icons/fonts/bootstrap-icons.woff2" },
+	{ src: "node_modules/jquery/dist/jquery.min.js", dest: "frontend/static/vendor/jquery/jquery.min.js" },
+	{ src: "node_modules/jquery/dist/jquery.min.map", dest: "frontend/static/vendor/jquery/jquery.min.map" },
 ];
 
 // Executar a cópia
+console.log("Copying files from node_modules to static/vendor...");
 filesToCopy.forEach((file) => copyFile(file.src, file.dest));
 
 // Instalar dependências do Python e suprimir mensagens "Requirement already satisfied"

@@ -1,132 +1,70 @@
-document.addEventListener("DOMContentLoaded", () => {
-	const convertToSpeechButton = document.getElementById("convertToSpeech");
-	const startRecordingButton = document.getElementById("startRecording");
-	const stopRecordingButton = document.getElementById("stopRecording");
-	const textToConvert = document.getElementById("textToConvert");
-	const transcriptionOutput = document.getElementById("transcriptionOutput");
-	const transcriptionCard = document.getElementById("transcriptionCard");
+const IndexApp = (() => {
+	const Selectors = {
+		ConvertToSpeechButton: "#convertToSpeech",
+		TextToConvert: "#textToConvert",
+		StartRecordingButton: "#startRecording",
+		StopRecordingButton: "#stopRecording",
+		TranscriptionOutput: "#transcriptionOutput",
+		TranscriptionCard: "#transcriptionCard",
+		ParentSelector: "#indexApp",
+	};
 
 	let mediaRecorder;
-	let audioChunks = [];
-	let mediaStream;
 
-	// Função para mostrar o toast
-	function showToast(message) {
-		const toastContainer = document.getElementById("toastContainer");
+	const Init = () => {
+		$(function () {
+			LoadEvents();
+		});
+	};
 
-		const toast = document.createElement("div");
-		toast.className = "toast align-items-center text-white bg-danger border-0 show";
-		toast.setAttribute("role", "alert");
-		toast.setAttribute("aria-live", "assertive");
-		toast.setAttribute("aria-atomic", "true");
+	const LoadEvents = () => {
+		$(Selectors.ParentSelector).on("click", Selectors.ConvertToSpeechButton, ConvertToSpeech).on("click", Selectors.StartRecordingButton, StartRecording).on("click", Selectors.StopRecordingButton, StopRecording);
+	};
 
-		const toastBody = document.createElement("div");
-		toastBody.className = "d-flex";
+	const ShowTranscription = (transcription) => {
+		$(Selectors.TranscriptionOutput).html(transcription);
+		$(Selectors.TranscriptionCard).show();
+	};
 
-		const toastContent = document.createElement("div");
-		toastContent.className = "toast-body";
-		toastContent.innerText = message;
-
-		const closeButton = document.createElement("button");
-		closeButton.type = "button";
-		closeButton.className = "btn-close btn-close-white me-2 m-auto";
-		closeButton.setAttribute("data-bs-dismiss", "toast");
-		closeButton.setAttribute("aria-label", "Close");
-
-		toastBody.appendChild(toastContent);
-		toastBody.appendChild(closeButton);
-		toast.appendChild(toastBody);
-		toastContainer.appendChild(toast);
-
-		setTimeout(() => {
-			toastContainer.removeChild(toast);
-		}, 5000);
-	}
-
-	// Função para conversão de texto para fala
-	convertToSpeechButton.addEventListener("click", async () => {
-		const text = textToConvert.value;
+	const ConvertToSpeech = async () => {
+		const text = $(Selectors.TextToConvert).val();
 		if (text.trim() === "") {
-			showToast("Digite um texto para converter.");
+			CommonApp.ShowToast("Digite um texto para converter.");
 			return;
 		}
-		const response = await fetch("/openai/tts", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
+
+		const audio = await CommonApp.TextToSpeech(text);
+		if (!audio) {
+			CommonApp.ShowToast("Falha ao converter texto para fala.");
+		}
+	};
+
+	const StartRecording = () => {
+		$(Selectors.ConvertToSpeechButton).prop("disabled", true);
+		CommonApp.StartRecording(
+			(recorder) => {
+				mediaRecorder = recorder;
+				$(Selectors.StartRecordingButton).hide();
+				$(Selectors.StopRecordingButton).show();
+				$(Selectors.TranscriptionCard).hide();
 			},
-			body: JSON.stringify({ text }),
-		});
-
-		if (response.ok) {
-			const audioBlob = await response.blob();
-			const audioUrl = URL.createObjectURL(audioBlob);
-			const audio = new Audio(audioUrl);
-			audio.play();
-		} else {
-			showToast("Falha ao converter texto em fala");
-		}
-	});
-
-	// Função para iniciar a gravação
-	startRecordingButton.addEventListener("click", async () => {
-		startRecordingButton.style.display = "none";
-		stopRecordingButton.style.display = "inline-block";
-		audioChunks = [];
-
-		// Esconder a transcrição antiga
-		transcriptionCard.style.display = "none";
-		transcriptionOutput.innerText = "";
-
-		try {
-			mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-			mediaRecorder = new MediaRecorder(mediaStream, { mimeType: "audio/webm" });
-
-			mediaRecorder.ondataavailable = (event) => {
-				audioChunks.push(event.data);
-			};
-
-			mediaRecorder.start();
-		} catch (error) {
-			showToast("Erro ao acessar o microfone");
-			startRecordingButton.style.display = "inline-block";
-			stopRecordingButton.style.display = "none";
-		}
-	});
-
-	// Função para parar a gravação
-	stopRecordingButton.addEventListener("click", async () => {
-		startRecordingButton.style.display = "inline-block";
-		stopRecordingButton.style.display = "none";
-
-		mediaRecorder.stop();
-
-		mediaRecorder.onstop = async () => {
-			const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
-			const audioUrl = URL.createObjectURL(audioBlob);
-
-			// Tocar o áudio gravado para verificação
-			// const audio = new Audio(audioUrl);
-			// audio.play();
-
-			const formData = new FormData();
-			formData.append("file", audioBlob, "recording.webm");
-
-			const response = await fetch("/openai/whisper", {
-				method: "POST",
-				body: formData,
-			});
-
-			if (response.ok) {
-				const data = await response.json();
-				transcriptionOutput.innerText = data.transcription;
-				transcriptionCard.style.display = "block";
-			} else {
-				showToast("Erro ao processar o áudio");
+			(transcription) => {
+				ShowTranscription(transcription);
+				$(Selectors.StartRecordingButton).show();
+				$(Selectors.StopRecordingButton).hide();
+				$(Selectors.ConvertToSpeechButton).prop("disabled", false);
 			}
+		);
+	};
 
-			// Parar todas as tracks do stream de mídia
-			mediaStream.getTracks().forEach((track) => track.stop());
-		};
-	});
-});
+	const StopRecording = () => {
+		if (mediaRecorder && mediaRecorder.state !== "inactive") {
+			mediaRecorder.stop();
+			$(Selectors.StartRecordingButton).show();
+			$(Selectors.StopRecordingButton).hide();
+		}
+	};
+
+	Init();
+	return {};
+})();

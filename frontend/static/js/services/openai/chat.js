@@ -1,102 +1,153 @@
-document.addEventListener("DOMContentLoaded", () => {
-	// Seleciona os elementos da interface
-	const sendMessageButton = document.getElementById("sendMessage");
-	const chatInput = document.getElementById("chatInput");
-	const chatWindow = document.getElementById("chatWindow");
-	const startRecordingButton = document.getElementById("startRecording");
-	const stopRecordingButton = document.getElementById("stopRecording");
+const ChatApp = (() => {
+	const Selectors = {
+		SendMessageButton: "#sendMessage",
+		ChatInput: "#chatInput",
+		ChatWindow: "#chatWindow",
+		StartRecordingButton: "#startRecording",
+		StopRecordingButton: "#stopRecording",
+		FileInput: "#fileInput",
+		FilePreview: "#filePreview",
+		ParentSelector: "#chatApp",
+	};
+
 	let chatId = null;
 	let mediaRecorder;
+	let attachedFiles = [];
 
-	// Função para adicionar mensagens ao chat
-	function addMessageToChat(content, isUser = true) {
-		const messageDiv = document.createElement("div");
-		messageDiv.className = isUser ? "text-end" : "text-start";
-		messageDiv.innerHTML = `
-            <div class="card ${isUser ? "bg-primary text-white" : "bg-light text-dark"} mb-2">
+	const Init = () => {
+		$(function () {
+			LoadEvents();
+		});
+	};
+
+	const LoadEvents = () => {
+		$(Selectors.ParentSelector).on("click", Selectors.SendMessageButton, SendMessage).on("click", Selectors.StartRecordingButton, StartRecording).on("click", Selectors.StopRecordingButton, StopRecording).on("change", Selectors.FileInput, PreviewFiles);
+	};
+
+	const CreateMessage = (content, isUser = true, files = [], audioUrl = null) => {
+		const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+		const filesHtml = files.map((file) => CreateFileCard(file, isUser, false)).join("");
+		const audioPlayerHtml = audioUrl ? `<div class="audio-container" id="audio-${Date.now()}"></div>` : "";
+		return `
+            <div class="card ${isUser ? "text-bg-primary align-self-end" : "text-bg-secondary align-self-start"} mb-2" style="max-width: 80%;">
                 <div class="card-body">
-                    ${content}
+                    <p class="card-text" style="font-size: 1em;">${content}</p>
+                    ${filesHtml}
+                    ${audioPlayerHtml}
+                    <div class="text-end text-white-50" style="font-size: 0.8em;">${time}</div>
                 </div>
             </div>
         `;
-		chatWindow.appendChild(messageDiv);
-		chatWindow.scrollTop = chatWindow.scrollHeight;
-	}
+	};
 
-	// Função para enviar mensagens de chat para o servidor
-	async function sendChatMessage(message) {
-		// Envia a mensagem para o serviço de chat
+	const AddMessageToChat = (content, isUser = true, files = [], audioUrl = null) => {
+		const messageHtml = CreateMessage(content, isUser, files, audioUrl);
+		const messageElement = $(`<div class="d-flex ${isUser ? "justify-content-end" : "justify-content-start"}">${messageHtml}</div>`);
+		$(Selectors.ChatWindow).append(messageElement);
+		$(Selectors.ChatWindow).scrollTop($(Selectors.ChatWindow)[0].scrollHeight);
+
+		if (audioUrl) {
+			const audioContainer = messageElement.find(".audio-container");
+			const audioElement = $(`<audio controls autoplay class="w-100">`).attr("src", audioUrl);
+			audioContainer.append(audioElement);
+			//audioElement.createAudioController({ appendTo: audioContainer, autoplay: true });
+		}
+	};
+
+	const SendMessage = async () => {
+		const message = $(Selectors.ChatInput).val();
+		if (message.trim() === "") {
+			CommonApp.ShowToast("Digite uma mensagem para enviar.");
+			return;
+		}
+
+		const files = attachedFiles;
+		AddMessageToChat(message, true, files);
+		$(Selectors.ChatInput).val("");
+		$(Selectors.FileInput).val("");
+		$(Selectors.FilePreview).html("");
+		attachedFiles = [];
+		await SendChatMessage(message, files);
+	};
+
+	const StartRecording = () => {
+		$(Selectors.SendMessageButton).prop("disabled", true);
+		CommonApp.StartRecording(
+			(recorder) => {
+				mediaRecorder = recorder;
+				$(Selectors.StartRecordingButton).hide();
+				$(Selectors.StopRecordingButton).show();
+			},
+			(transcription) => {
+				AddMessageToChat(transcription, true);
+				SendChatMessage(transcription);
+				$(Selectors.StartRecordingButton).show();
+				$(Selectors.StopRecordingButton).hide();
+				$(Selectors.SendMessageButton).prop("disabled", false);
+			}
+		);
+	};
+
+	const StopRecording = () => {
+		if (mediaRecorder && mediaRecorder.state !== "inactive") {
+			mediaRecorder.stop();
+			$(Selectors.StartRecordingButton).show();
+			$(Selectors.StopRecordingButton).hide();
+		}
+	};
+
+	const PreviewFiles = () => {
+		Array.from($(Selectors.FileInput)[0].files).forEach((file) => {
+			attachedFiles.push(file);
+		});
+		$(Selectors.FilePreview).html("");
+		attachedFiles.forEach((file, index) => {
+			const fileCard = CreateFileCard(file, true, true); // showRemove = true
+			$(Selectors.FilePreview).append(`
+                <div class="card mb-2">
+                    <div class="card-body">
+                        ${fileCard}
+                    </div>
+                </div>
+            `);
+		});
+	};
+
+	const SendChatMessage = async (message, files = []) => {
+		const formData = new FormData();
+		formData.append("message", message);
+		if (chatId != null) {
+			formData.append("chat_id", chatId);
+		}
+
+		files.forEach((file) => {
+			formData.append("files", file);
+		});
+
 		const response = await fetch("/openai/chat", {
 			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ chat_id: chatId, message }),
+			body: formData,
 		});
 
 		if (response.ok) {
 			const data = await response.json();
 			chatId = data.chat_id;
 
-			// Adiciona mensagem de "processando"
-			addMessageToChat("Chat está processando sua mensagem...", false);
+			AddMessageToChat("Chat está processando sua mensagem...", false);
 
-			// Converte resposta para fala
-			const audio = await textToSpeech(data.response);
+			const audio = await CommonApp.TextToSpeech(data.response, false);
 			if (audio) {
-				// Remove mensagem de "processando" e adiciona a resposta ao chat
-				chatWindow.removeChild(chatWindow.lastChild);
-				addMessageToChat(data.response, false);
-				// Quando o áudio terminar, destaca a resposta no chat
-				audio.onended = () => {
-					chatWindow.lastChild.classList.add("highlight");
-				};
+				$(Selectors.ChatWindow).children().last().remove();
+				AddMessageToChat(data.response, false, [], audio.src);
 			} else {
-				// Remove mensagem de "processando" se houver falha no TTS
-				chatWindow.removeChild(chatWindow.lastChild);
-				addMessageToChat(data.response, false);
+				$(Selectors.ChatWindow).children().last().remove();
+				AddMessageToChat(data.response, false);
 			}
 		} else {
-			showToast("Falha ao obter resposta do chat.");
+			CommonApp.ShowToast("Falha ao obter resposta do chat.");
 		}
-	}
+	};
 
-	// Evento de clique para enviar mensagem
-	sendMessageButton.addEventListener("click", () => {
-		const message = chatInput.value;
-		if (message.trim() === "") {
-			showToast("Digite uma mensagem para enviar.");
-			return;
-		}
-
-		addMessageToChat(message, true);
-		chatInput.value = "";
-		sendChatMessage(message);
-	});
-
-	// Evento de clique para iniciar gravação
-	startRecordingButton.addEventListener("click", () => {
-		startRecording(
-			(recorder) => {
-				mediaRecorder = recorder;
-				startRecordingButton.style.display = "none";
-				stopRecordingButton.style.display = "inline-block";
-			},
-			(transcription) => {
-				addMessageToChat(transcription, true);
-				sendChatMessage(transcription);
-				startRecordingButton.style.display = "inline-block";
-				stopRecordingButton.style.display = "none";
-			}
-		);
-	});
-
-	// Evento de clique para parar gravação
-	stopRecordingButton.addEventListener("click", () => {
-		if (mediaRecorder && mediaRecorder.state !== "inactive") {
-			mediaRecorder.stop();
-			startRecordingButton.style.display = "inline-block";
-			stopRecordingButton.style.display = "none";
-		}
-	});
-});
+	Init();
+	return {};
+})();

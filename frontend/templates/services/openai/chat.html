@@ -1,23 +1,22 @@
 {% extends "layout.html" %} {% block title %}Chat OpenAI{% endblock %} {% block head %}
 <link rel="stylesheet" href="/static/css/services/openai/chat.css" />
 {% endblock %} {% block content %}
-<div class="card my-2">
+<div id="chatApp" class="card my-2">
 	<div class="card-body">
 		<h1 class="card-title">Chat OpenAI</h1>
-		<p class="card-text">Interaja com o modelo de chat da OpenAI.</p>
-
-		<!-- Bloco para o serviço de chat -->
-		<div class="card my-2">
-			<div class="card-body">
-				<h5 class="card-title">Chat com IA</h5>
-				<div id="chatWindow" class="mb-3" style="height: 300px; overflow-y: auto; background-color: #f8f9fa; padding: 10px">
-					<!-- Mensagens do chat serão inseridas aqui -->
+		<div id="chatWindow" class="p-2 bg-white rounded overflow-y-auto" style="min-height: 600px"></div>
+		<textarea id="chatInput" class="form-control mt-2" placeholder="Digite sua mensagem..." rows="3"></textarea>
+		<div class="mt-2">
+			<div class="d-flex justify-content-between align-items-center">
+				<label for="fileInput" class="btn btn-secondary"><i class="bi bi-paperclip"></i> Adicionar Arquivos</label>
+				<input type="file" id="fileInput" multiple class="d-none" />
+				<div>
+					<button id="startRecording" class="btn btn-success ms-2"><i class="bi bi-mic-fill"></i> Iniciar Gravação</button>
+					<button id="stopRecording" class="btn btn-danger ms-2" style="display: none"><i class="bi bi-stop-fill"></i> Parar Gravação</button>
+					<button id="sendMessage" class="btn btn-primary ms-2"><i class="bi bi-send"></i> Enviar Mensagem</button>
 				</div>
-				<textarea id="chatInput" class="form-control mb-3" placeholder="Digite sua mensagem..."></textarea>
-				<button id="sendMessage" class="btn btn-primary mb-3"><i class="bi bi-chat-right-dots"></i> Enviar Mensagem</button>
-				<button id="startRecording" class="btn btn-secondary mb-3"><i class="bi bi-mic-fill"></i> Enviar Áudio</button>
-				<button id="stopRecording" class="btn btn-danger mb-3" style="display: none"><i class="bi bi-stop-fill"></i> Parar Gravação</button>
 			</div>
+			<div id="filePreview" class="mb-3"></div>
 		</div>
 	</div>
 </div>
