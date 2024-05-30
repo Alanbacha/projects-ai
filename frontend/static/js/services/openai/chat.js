@@ -7,6 +7,7 @@ const ChatApp = (() => {
 		StopRecordingButton: "#stopRecording",
 		FileInput: "#fileInput",
 		FilePreview: "#filePreview",
+		RemoveFile: ".remove-file",
 		ParentSelector: "#chatApp",
 	};
 
@@ -26,7 +27,10 @@ const ChatApp = (() => {
 			.on("click", Selectors.StartRecordingButton, StartRecording)
 			.on("click", Selectors.StopRecordingButton, StopRecording)
 			.on("change", Selectors.FileInput, PreviewFiles)
-			;
+			.on("click", Selectors.RemoveFile, function () {
+				const index = $(this).data("index");
+				RemoveFile(index);
+			});
 	};
 
 	const CreateMessage = (content, isUser = true, files = [], audioUrl = null) => {
@@ -35,7 +39,7 @@ const ChatApp = (() => {
 		const audioPlayerHtml = audioUrl ? `<div class="audio-container" id="audio-${Date.now()}"></div>` : "";
 
 		return `
-			<div class="card ${isUser ? "text-bg-primary align-self-end" : "text-bg-secondary align-self-start"}" style="min-width: 40%; max-width: 80%;">
+            <div class="card ${isUser ? "text-bg-primary align-self-end" : "text-bg-secondary align-self-start"}" style="min-width: 40%; max-width: 80%;">
                 <div class="card-body d-flex flex-column gap-2">
                     <p class="card-text">${content}</p>
                     ${filesHtml}
@@ -90,8 +94,8 @@ const ChatApp = (() => {
 				$(Selectors.StopRecordingButton).show();
 			},
 			(transcription) => {
-				AddMessageToChat(transcription, true);
-				SendChatMessage(transcription);
+				$(Selectors.ChatInput).val(transcription);
+				SendMessage();
 				$(Selectors.StartRecordingButton).show();
 				$(Selectors.StopRecordingButton).hide();
 				$(Selectors.SendMessageButton).prop("disabled", false);
@@ -108,7 +112,7 @@ const ChatApp = (() => {
 	};
 
 	const PreviewFiles = () => {
-		Array.from($(Selectors.FileInput)[0].files).forEach((file) => { attachedFiles.push(file); });
+		attachedFiles = Array.from($(Selectors.FileInput)[0].files);
 
 		$(Selectors.FilePreview).html("");
 
@@ -129,23 +133,36 @@ const ChatApp = (() => {
 		const fileType = file.type.split("/")[0];
 		const fileIcon = fileType === "image" ? `<img src="${URL.createObjectURL(file)}" class="object-fit-cover rounded w-100 h-100">` : `<i class="bi bi-file-earmark-text" style="font-size: 2em;"></i>`;
 		const downloadButton = !showRemove ? `<a href="${URL.createObjectURL(file)}" download="${file.name}" class="btn btn-sm btn-primary"><i class="bi bi-download"></i></a>` : "";
-		const removeButton = showRemove ? `<button class="btn btn-sm btn-danger" onclick="RemoveFile(${index})"><i class="bi bi-trash"></i></button>` : "";
+		const removeButton = showRemove ? `<button class="btn btn-sm btn-danger remove-file" data-index="${index}"><i class="bi bi-trash"></i></button>` : "";
 
 		return `
             <div class="d-flex gap-2 align-items-center align-content-between flex-grow-1 p-2 rounded text-bg-dark">
                 <div class="border rounded d-flex align-items-center justify-content-center p-1" style="width: 50px; height: 50px;">
-					${fileIcon}
-				</div>
+                    ${fileIcon}
+                </div>
                 <div class="flex-grow-1">
                     <div>${file.name}</div>
                     <div class="small">${(file.size / 1024).toFixed(1)} KB</div>
                 </div>
-				<div class="d-flex gap-2 p-2">
-                	${downloadButton}
-					${removeButton}
-				</div>
+                <div class="d-flex gap-2 p-2">
+                    ${downloadButton}
+                    ${removeButton}
+                </div>
             </div>
         `;
+	};
+
+	const RemoveFile = (index) => {
+		// Remover do attachedFiles
+		attachedFiles.splice(index, 1);
+
+		// Criar um novo DataTransfer para atualizar o input file
+		const dataTransfer = new DataTransfer();
+		attachedFiles.forEach(file => dataTransfer.items.add(file));
+		$(Selectors.FileInput)[0].files = dataTransfer.files;
+
+		// Atualizar a visualização dos arquivos
+		PreviewFiles();
 	};
 
 	const SendChatMessage = async (message, files = []) => {
