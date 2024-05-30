@@ -21,20 +21,26 @@ const ChatApp = (() => {
 	};
 
 	const LoadEvents = () => {
-		$(Selectors.ParentSelector).on("click", Selectors.SendMessageButton, SendMessage).on("click", Selectors.StartRecordingButton, StartRecording).on("click", Selectors.StopRecordingButton, StopRecording).on("change", Selectors.FileInput, PreviewFiles);
+		$(Selectors.ParentSelector)
+			.on("click", Selectors.SendMessageButton, SendMessage)
+			.on("click", Selectors.StartRecordingButton, StartRecording)
+			.on("click", Selectors.StopRecordingButton, StopRecording)
+			.on("change", Selectors.FileInput, PreviewFiles)
+			;
 	};
 
 	const CreateMessage = (content, isUser = true, files = [], audioUrl = null) => {
 		const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-		const filesHtml = files.map((file) => CreateFileCard(file, isUser, false)).join("");
+		const filesHtml = files.map((file, index) => CreateFileCard(file, index, false)).join("");
 		const audioPlayerHtml = audioUrl ? `<div class="audio-container" id="audio-${Date.now()}"></div>` : "";
+
 		return `
-            <div class="card ${isUser ? "text-bg-primary align-self-end" : "text-bg-secondary align-self-start"} mb-2" style="max-width: 80%;">
-                <div class="card-body">
-                    <p class="card-text" style="font-size: 1em;">${content}</p>
+			<div class="card ${isUser ? "text-bg-primary align-self-end" : "text-bg-secondary align-self-start"}" style="min-width: 40%; max-width: 80%;">
+                <div class="card-body d-flex flex-column gap-2">
+                    <p class="card-text">${content}</p>
                     ${filesHtml}
                     ${audioPlayerHtml}
-                    <div class="text-end text-white-50" style="font-size: 0.8em;">${time}</div>
+                    <div class="text-end text-white-50 small">${time}</div>
                 </div>
             </div>
         `;
@@ -43,6 +49,7 @@ const ChatApp = (() => {
 	const AddMessageToChat = (content, isUser = true, files = [], audioUrl = null) => {
 		const messageHtml = CreateMessage(content, isUser, files, audioUrl);
 		const messageElement = $(`<div class="d-flex ${isUser ? "justify-content-end" : "justify-content-start"}">${messageHtml}</div>`);
+
 		$(Selectors.ChatWindow).append(messageElement);
 		$(Selectors.ChatWindow).scrollTop($(Selectors.ChatWindow)[0].scrollHeight);
 
@@ -50,12 +57,12 @@ const ChatApp = (() => {
 			const audioContainer = messageElement.find(".audio-container");
 			const audioElement = $(`<audio controls autoplay class="w-100">`).attr("src", audioUrl);
 			audioContainer.append(audioElement);
-			//audioElement.createAudioController({ appendTo: audioContainer, autoplay: true });
 		}
 	};
 
 	const SendMessage = async () => {
 		const message = $(Selectors.ChatInput).val();
+
 		if (message.trim() === "") {
 			CommonApp.ShowToast("Digite uma mensagem para enviar.");
 			return;
@@ -63,15 +70,19 @@ const ChatApp = (() => {
 
 		const files = attachedFiles;
 		AddMessageToChat(message, true, files);
+
 		$(Selectors.ChatInput).val("");
 		$(Selectors.FileInput).val("");
 		$(Selectors.FilePreview).html("");
+
 		attachedFiles = [];
+
 		await SendChatMessage(message, files);
 	};
 
 	const StartRecording = () => {
 		$(Selectors.SendMessageButton).prop("disabled", true);
+
 		CommonApp.StartRecording(
 			(recorder) => {
 				mediaRecorder = recorder;
@@ -97,15 +108,16 @@ const ChatApp = (() => {
 	};
 
 	const PreviewFiles = () => {
-		Array.from($(Selectors.FileInput)[0].files).forEach((file) => {
-			attachedFiles.push(file);
-		});
+		Array.from($(Selectors.FileInput)[0].files).forEach((file) => { attachedFiles.push(file); });
+
 		$(Selectors.FilePreview).html("");
+
 		attachedFiles.forEach((file, index) => {
-			const fileCard = CreateFileCard(file, true, true); // showRemove = true
+			const fileCard = CreateFileCard(file, index, true);
+
 			$(Selectors.FilePreview).append(`
-                <div class="card mb-2">
-                    <div class="card-body">
+                <div class="card flex-grow-1">
+                    <div class="card-body d-flex">
                         ${fileCard}
                     </div>
                 </div>
@@ -113,9 +125,33 @@ const ChatApp = (() => {
 		});
 	};
 
+	const CreateFileCard = (file, index, showRemove) => {
+		const fileType = file.type.split("/")[0];
+		const fileIcon = fileType === "image" ? `<img src="${URL.createObjectURL(file)}" class="object-fit-cover rounded w-100 h-100">` : `<i class="bi bi-file-earmark-text" style="font-size: 2em;"></i>`;
+		const downloadButton = !showRemove ? `<a href="${URL.createObjectURL(file)}" download="${file.name}" class="btn btn-sm btn-primary"><i class="bi bi-download"></i></a>` : "";
+		const removeButton = showRemove ? `<button class="btn btn-sm btn-danger" onclick="RemoveFile(${index})"><i class="bi bi-trash"></i></button>` : "";
+
+		return `
+            <div class="d-flex gap-2 align-items-center align-content-between flex-grow-1 p-2 rounded text-bg-dark">
+                <div class="border rounded d-flex align-items-center justify-content-center p-1" style="width: 50px; height: 50px;">
+					${fileIcon}
+				</div>
+                <div class="flex-grow-1">
+                    <div>${file.name}</div>
+                    <div class="small">${(file.size / 1024).toFixed(1)} KB</div>
+                </div>
+				<div class="d-flex gap-2 p-2">
+                	${downloadButton}
+					${removeButton}
+				</div>
+            </div>
+        `;
+	};
+
 	const SendChatMessage = async (message, files = []) => {
 		const formData = new FormData();
 		formData.append("message", message);
+
 		if (chatId != null) {
 			formData.append("chat_id", chatId);
 		}
@@ -149,5 +185,6 @@ const ChatApp = (() => {
 	};
 
 	Init();
+
 	return {};
 })();

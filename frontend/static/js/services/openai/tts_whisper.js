@@ -18,7 +18,11 @@ const TTSWhisperApp = (() => {
 	};
 
 	const LoadEvents = () => {
-		$(Selectors.ParentSelector).on("click", Selectors.ConvertToSpeechButton, ConvertToSpeech).on("click", Selectors.StartRecordingButton, StartRecording).on("click", Selectors.StopRecordingButton, StopRecording);
+		$(Selectors.ParentSelector)
+			.on("click", Selectors.ConvertToSpeechButton, ConvertToSpeech)
+			.on("click", Selectors.StartRecordingButton, StartRecording)
+			.on("click", Selectors.StopRecordingButton, StopRecording)
+			;
 	};
 
 	const ShowTranscription = (transcription) => {
@@ -66,5 +70,6 @@ const TTSWhisperApp = (() => {
 	};
 
 	Init();
+
 	return {};
 })();

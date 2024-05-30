@@ -1,6 +1,9 @@
-{% extends "layout.html" %} {% block title %}Home{% endblock %} {% block head %}
+{% extends "layout.html" %}
+{% block title %}Home{% endblock %}
+{% block head %}
 <link rel="stylesheet" href="/static/css/home/index.css" />
-{% endblock %} {% block content %}
+{% endblock %}
+{% block content %}
 <div class="card my-2">
 	<div class="card-body">
 		<h1 class="card-title">Bem-vindo ao IA Conversacional</h1>
@@ -29,6 +32,7 @@
 		</div>
 	</div>
 </div>
-{% endblock %} {% block scripts %}
+{% endblock %}
+{% block scripts %}
 <script src="/static/js/home/index.js" defer></script>
 {% endblock %}

@@ -1,6 +1,9 @@
-{% extends "layout.html" %} {% block title %}Serviços OpenAI{% endblock %} {% block head %}
+{% extends "layout.html" %}
+{% block title %}Serviços OpenAI{% endblock %}
+{% block head %}
 <link rel="stylesheet" href="/static/css/services/openai/tts_whisper.css" />
-{% endblock %} {% block content %}
+{% endblock %}
+{% block content %}
 <div id="ttsWhisperApp" class="card my-2">
 	<div class="card-body">
 		<h1 class="card-title">Open AI - TTS e Whisper</h1>
@@ -31,6 +34,7 @@
 		</div>
 	</div>
 </div>
-{% endblock %} {% block scripts %}
+{% endblock %}
+{% block scripts %}
 <script src="/static/js/services/openai/tts_whisper.js" defer></script>
 {% endblock %}

@@ -1,10 +1,13 @@
-{% extends "layout.html" %} {% block title %}Chat OpenAI{% endblock %} {% block head %}
+{% extends "layout.html" %}
+{% block title %}Chat OpenAI{% endblock %}
+{% block head %}
 <link rel="stylesheet" href="/static/css/services/openai/chat.css" />
-{% endblock %} {% block content %}
+{% endblock %}
+{% block content %}
 <div id="chatApp" class="card my-2">
 	<div class="card-body">
 		<h1 class="card-title">Chat OpenAI</h1>
-		<div id="chatWindow" class="p-2 bg-white rounded overflow-y-auto" style="min-height: 600px"></div>
+		<div id="chatWindow" class="d-flex flex-column gap-2 p-2 bg-white rounded overflow-y-auto" style="min-height: 300px; max-height: 600px"></div>
 		<textarea id="chatInput" class="form-control mt-2" placeholder="Digite sua mensagem..." rows="3"></textarea>
 		<div class="mt-2">
 			<div class="d-flex justify-content-between align-items-center">
@@ -16,10 +19,11 @@
 					<button id="sendMessage" class="btn btn-primary ms-2"><i class="bi bi-send"></i> Enviar Mensagem</button>
 				</div>
 			</div>
-			<div id="filePreview" class="mb-3"></div>
+			<div id="filePreview" class="d-flex gap-2 flex-wrap mt-2"></div>
 		</div>
 	</div>
 </div>
-{% endblock %} {% block scripts %}
+{% endblock %}
+{% block scripts %}
 <script src="/static/js/services/openai/chat.js" defer></script>
 {% endblock %}

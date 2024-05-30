@@ -1,12 +1,12 @@
-document.addEventListener("DOMContentLoaded", () => {
-	// Código JS específico para a página inicial pode ser adicionado aqui
-	// Por enquanto, não há funcionalidades JS específicas para esta página
+const Home = (() => {
+	const Init = () => {
+		$(function () {
+			// Exemplo: Função para exibir um toast de boas-vindas
+			CommonApp.ShowToast("Bem-vindo ao IA Conversacional!", "success");
+		});
+	};
 
-	// Exemplo: Função para exibir um toast de boas-vindas
-	function showWelcomeToast() {
-		showToast("Bem-vindo ao IA Conversacional!");
-	}
+	Init();
 
-	// Exibe o toast de boas-vindas ao carregar a página
-	showWelcomeToast();
-});
+	return {};
+})();
