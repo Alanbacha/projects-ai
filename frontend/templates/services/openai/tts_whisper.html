@@ -6,35 +6,27 @@
 {% block content %}
 <div id="ttsWhisperApp" class="card my-2">
 	<div class="card-body">
-		<h1 class="card-title">Open AI - TTS e Whisper</h1>
+		<h1 class="card-title"><i class="bi bi-volume-up"></i> TTS e Whisper</h1>
 		<p class="card-text">Explore os serviços disponíveis:</p>
 
 		<!-- Bloco para o serviço de TTS -->
 		<div class="card my-2">
 			<div class="card-body">
-				<h5 class="card-title">Conversor de Texto para Fala (TTS)</h5>
-				<textarea id="textToConvert" class="form-control mb-3" placeholder="Digite o texto aqui..."></textarea>
-				<button id="convertToSpeech" class="btn btn-primary mb-3"><i class="bi bi-volume-up"></i> Converter para Fala</button>
+				<div class="component-tts"></div>
 			</div>
 		</div>
 
 		<!-- Bloco para o serviço Whisper -->
 		<div class="card my-2">
 			<div class="card-body">
-				<h5 class="card-title">Serviço de Transcrição (Whisper)</h5>
-				<button id="startRecording" class="btn btn-success"><i class="bi bi-mic-fill"></i> Iniciar Gravação</button>
-				<button id="stopRecording" class="btn btn-danger" style="display: none"><i class="bi bi-stop-fill"></i> Parar Gravação</button>
-				<div id="transcriptionCard" class="card mt-3" style="display: none">
-					<div class="card-header bg-info text-dark">Transcrição</div>
-					<div class="card-body">
-						<p id="transcriptionOutput" class="card-text text-light"></p>
-					</div>
-				</div>
+				<div class="component-whisper"></div>
 			</div>
 		</div>
 	</div>
 </div>
 {% endblock %}
 {% block scripts %}
+<script src="/static/js/components/jquery.tts.js" defer></script>
+<script src="/static/js/components/jquery.whisper.js" defer></script>
 <script src="/static/js/services/openai/tts_whisper.js" defer></script>
 {% endblock %}

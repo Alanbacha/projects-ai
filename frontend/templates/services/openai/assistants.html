@@ -1,0 +1,116 @@
+{% extends "layout.html" %}
+{% block title %}Assistentes OpenAI{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="/static/css/services/openai/assistants.css" />
+{% endblock %}
+{% block content %}
+<div id="assistantsApp" class="card my-2">
+	<div class="card-body">
+		<div class="d-flex justify-content-between align-items-center">
+			<h1 class="card-title">Assistentes OpenAI</h1>
+			<button id="createAssistantButton" class="btn btn-primary">Criar Assistente</button>
+		</div>
+		<div id="assistantsList" class="accordion">
+			<!-- Lista de Assistentes -->
+		</div>
+	</div>
+</div>
+
+<!-- Modal de Criação/Atualização de Assistente -->
+<div class="modal fade" id="assistantModal" tabindex="-1" aria-labelledby="assistantModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="assistantModalLabel">Criar Assistente</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<form id="createAssistantForm">
+				<div class="modal-body">
+					<div class="d-flex justify-content-between gap-2 mb-2">
+						<div class="w-50">
+							<label for="assistantName" class="form-label">Nome do Assistente</label>
+							<input type="text" class="form-control" id="assistantName" name="name" required>
+						</div>
+						<div class="w-50">
+							<label for="assistantModel" class="form-label">Modelo</label>
+							<select class="form-select" id="assistantModel" name="model" required>
+								<option value="gpt-4">GPT-4</option>
+								<option value="gpt-4-turbo">GPT-4 Turbo</option>
+								<option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="d-flex justify-content-between gap-2 mb-2">
+						<div class="w-50">
+							<div class="d-flex justify-content-between align-items-center">
+								<label for="assistantTemperature" class="form-label flex-grow-1">Temperatura</label>
+								<span class="badge text-bg-secondary" id="temperatureValue">1.00</span>
+							</div>
+							<input type="range" class="form-range" min="0" max="2" step="0.01" id="assistantTemperature" name="temperature" value="1">
+						</div>
+						<div class="w-50">
+							<div class="d-flex justify-content-between align-items-center">
+								<label for="assistantTopP" class="form-label flex-grow-1">Top P</label>
+								<span class="badge text-bg-secondary" id="topPValue">1.00</span>
+							</div>
+							<input type="range" class="form-range" min="0" max="1" step="0.01" id="assistantTopP" name="top_p" value="1">
+						</div>
+					</div>
+
+					<div class="mb-2">
+						<label for="assistantInstructions" class="form-label">Instruções</label>
+						<textarea class="form-control" id="assistantInstructions" name="instructions" rows="3" required></textarea>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+					<button type="submit" id="assistantModalSubmit" class="btn btn-primary">Criar</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<!-- Modal de Confirmação -->
+<div class="modal fade" id="confirmChangeModal" tabindex="-1" aria-labelledby="confirmChangeModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="confirmChangeModalLabel">Confirmar Mudança de Assistente</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				Tem certeza de que deseja mudar o assistente? Isso limpará o chat atual.
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-primary" id="confirmChangeButton">Confirmar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal de Informações -->
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="infoModalLabel">Informações</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body" id="infoModalBody">
+				<!-- Conteúdo dinâmico -->
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/components/jquery.assistant.js" defer></script>
+<script src="/static/js/components/jquery.chat.js" defer></script>
+<script src="/static/js/services/openai/assistants.js" defer></script>
+{% endblock %}

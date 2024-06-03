@@ -13,14 +13,15 @@ load_dotenv()
 router = APIRouter()
 api_key = os.getenv("OPENAI_API_KEY")
 
+# Cria uma instância do cliente OpenAI
+client = OpenAI(api_key=api_key)
+
 # Modelo de solicitação para o serviço TTS
 class TextToSpeechRequest(BaseModel):
     text: str
 
 @router.post("/tts")
 async def tts_service(request: TextToSpeechRequest):
-    # Cria uma instância do cliente OpenAI
-    client = OpenAI(api_key=api_key)
     try:
         # Envia o texto para o serviço TTS
         response = client.audio.speech.create(

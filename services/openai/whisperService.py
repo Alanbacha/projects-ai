@@ -12,10 +12,12 @@ load_dotenv()
 router = APIRouter()
 api_key = os.getenv("OPENAI_API_KEY")
 
+# Cria uma instância do cliente OpenAI
+client = OpenAI(api_key=api_key)
+
 @router.post("/whisper")
 async def whisper_service(file: UploadFile = File(...)):
     # Cria uma instância do cliente OpenAI
-    client = OpenAI(api_key=api_key)
     try:
         # Lê o conteúdo do arquivo de áudio
         audio_bytes = await file.read()

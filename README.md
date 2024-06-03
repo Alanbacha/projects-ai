@@ -41,18 +41,11 @@ python -m venv env
 source env/bin/activate # No Windows: env\Scripts\activate
 ```
 
-3. Instale as dependências:
-
-```bash
-Copy code
-pip install -r requirements.txt
-npm install
-```
-
-4. Configure as variáveis de ambiente no arquivo .env:
+3. Crie o arquivo .env na raiz do projeto e configure as variáveis de ambiente:
 
 ```env
 OPENAI_API_KEY=your_openai_api_key
+OPENAI_ASSISTANTS_API_KEY=your_openai_api_key
 ```
 
 ## Execução do Projeto

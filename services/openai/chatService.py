@@ -9,8 +9,12 @@ import uuid
 # Carregar variáveis de ambiente do arquivo .env
 load_dotenv()
 
+# Cria um roteador para o serviço Chat
 router = APIRouter()
 api_key = os.getenv("OPENAI_API_KEY")
+
+# Cria uma instância do cliente OpenAI
+client = OpenAI(api_key=api_key)
 
 # Dicionário para armazenar os históricos de chat
 chat_histories = {}
@@ -21,21 +25,16 @@ async def chat_service(
     message: str = Form(...),
     files: List[UploadFile] = File([])
 ):
-    client = OpenAI(api_key=api_key)
-
     # Se não houver chat_id, criar um novo chat
     if chat_id is None:
         chat_id = str(uuid.uuid4())
         chat_histories[chat_id] = [{"role": "system", "content": "You are chatting with Axel, your assistant."}]
-#     else:
-#         chat_id = request.chat_id
     else:
         if chat_id not in chat_histories:
             chat_histories[chat_id] = [{"role": "system", "content": "You are chatting with Axel, your assistant."}]
     
     # Adicionar a mensagem do usuário ao histórico
     chat_histories[chat_id].append({"role": "user", "content": message})
-    #chat_histories[chat_id].append({"role": "user", "content": request.message})
 
     for file in files:
         file_content = await file.read()
