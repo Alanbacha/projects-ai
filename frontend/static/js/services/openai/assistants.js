@@ -36,11 +36,12 @@ const AssistantsApp = (() => {
             ;
     };
 
-    const LoadAssistants = async () => {
+    const LoadAssistants = async (assistantId) => {
         const response = await fetch("/openai/assistants");
         if (response.ok) {
             const assistants = await response.json();
             DisplayAssistants(assistants);
+            // assistantId
         } else {
             CommonApp.ShowToast("Falha ao carregar assistentes.", "danger");
         }

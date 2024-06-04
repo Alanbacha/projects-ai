@@ -2,24 +2,27 @@
     $.fn.createChat = function (options) {
         const settings = $.extend({
             minHeight: '200px',
-            maxHeight: '400px'
+            maxHeight: '400px',
+            urlChat: '/openai/chat',
+            title: '<i class="bi bi-chat"></i> Chat OpenAI'
         }, options);
 
-        const Selectors = {
-            sendMessageButton: ".send-message",
-            chatInput: ".chat-input",
-            chatWindow: ".chat-window",
-            startRecordingButton: ".start-recording",
-            stopRecordingButton: ".stop-recording",
-            fileInput: ".file-input",
-            filePreview: ".file-preview",
-            removeFile: ".remove-file"
+        const Classes = {
+            TxtaChatMessage: "chat-txta-chat-message",
+            ContentMessages: "chat-content-messages",
+            BtnStartRecording: "chat-btn-start-recording",
+            BtnStopRecording: "chat-btn-stop-recording",
+            BtnSendMessage: "chat-btn-send-message",
+            FileInput: "file-input",
+            FilePreview: "file-preview",
+            BtnRemoveFile: "chat-btn-remove-file"
         };
 
         return this.each(function () {
             const jqThis = $(this);
 
             let chatId = null;
+            let threadId = null;
             let mediaRecorder;
             let attachedFiles = [];
 
@@ -30,38 +33,38 @@
 
             const LoadHtml = () => {
                 jqThis.html(`
-                    <h1 class="card-title"><i class="bi bi-chat"></i> Chat OpenAI</h1>
-                    <div class="chat-window d-flex flex-column gap-2 p-2 bg-white rounded overflow-y-auto" style="min-height: ${settings.minHeight}; max-height: ${settings.maxHeight}"></div>
-                    <textarea class="chat-input form-control mt-2" placeholder="Digite sua mensagem..." rows="3"></textarea>
+                    ${settings.title.length ? `<h2 class="card-title">${settings.title}</h2>` : ''}
+                    <div class="d-flex flex-column gap-2 p-2 bg-white rounded overflow-y-auto ${Classes.ContentMessages}" style="min-height: ${settings.minHeight}; max-height: ${settings.maxHeight}"></div>
+                    <textarea class="form-control mt-2 ${Classes.TxtaChatMessage}" placeholder="Digite sua mensagem..." rows="3"></textarea>
                     <div class="mt-2">
                         <div class="d-flex justify-content-between align-items-center">
                             <label class="btn btn-secondary file-input-label"><i class="bi bi-paperclip"></i> Adicionar Arquivos</label>
-                            <input type="file" class="file-input d-none" multiple />
+                            <input type="file" class="d-none ${Classes.FileInput}" multiple />
                             <div>
-                                <button class="start-recording btn btn-success ms-2"><i class="bi bi-mic-fill"></i> Iniciar Gravação</button>
-                                <button class="stop-recording btn btn-danger ms-2" style="display: none"><i class="bi bi-stop-fill"></i> Parar Gravação</button>
-                                <button class="send-message btn btn-primary ms-2"><i class="bi bi-send"></i> Enviar Mensagem</button>
+                                <button class="btn btn-success ms-2 ${Classes.BtnStartRecording}"><i class="bi bi-mic-fill"></i> Iniciar Gravação</button>
+                                <button class="btn btn-danger ms-2 ${Classes.BtnStopRecording}" style="display: none"><i class="bi bi-stop-fill"></i> Parar Gravação</button>
+                                <button class="btn btn-primary ms-2 ${Classes.BtnSendMessage}"><i class="bi bi-send"></i> Enviar Mensagem</button>
                             </div>
                         </div>
-                        <div class="file-preview d-flex gap-2 flex-wrap mt-2"></div>
+                        <div class="d-flex gap-2 flex-wrap mt-2 ${Classes.FilePreview}"></div>
                     </div>
                 `);
             };
 
             const LoadEvents = () => {
                 jqThis
-                    .on("click", Selectors.sendMessageButton, SendMessage)
-                    .on("click", Selectors.startRecordingButton, StartRecording)
-                    .on("click", Selectors.stopRecordingButton, StopRecording)
-                    .on("change", Selectors.fileInput, PreviewFiles)
-                    .on("click", Selectors.removeFile, function () {
+                    .on("click", `.${Classes.BtnSendMessage}`, SendMessage)
+                    .on("click", `.${Classes.BtnStartRecording}`, StartRecording)
+                    .on("click", `.${Classes.BtnStopRecording}`, StopRecording)
+                    .on("change", `.${Classes.FileInput}`, PreviewFiles)
+                    .on("click", `.${Classes.BtnRemoveFile}`, function () {
                         const index = $(this).data("index");
                         RemoveFile(index);
                     });
 
                 // Evento para acionar o input de arquivos ao clicar no label
                 jqThis.find('.file-input-label').on('click', function () {
-                    jqThis.find(Selectors.fileInput).click();
+                    jqThis.find(`.${Classes.FileInput}`).click();
                 });
             };
 
@@ -86,8 +89,8 @@
                 const messageHtml = CreateMessage(content, isUser, files, audioUrl);
                 const messageElement = $(`<div class="d-flex ${isUser ? "justify-content-end" : "justify-content-start"}">${messageHtml}</div>`);
 
-                jqThis.find(Selectors.chatWindow).append(messageElement);
-                jqThis.find(Selectors.chatWindow).scrollTop(jqThis.find(Selectors.chatWindow)[0].scrollHeight);
+                jqThis.find(`.${Classes.ContentMessages}`).append(messageElement);
+                jqThis.find(`.${Classes.ContentMessages}`).scrollTop(jqThis.find(`.${Classes.ContentMessages}`)[0].scrollHeight);
 
                 if (audioUrl) {
                     const audioContainer = messageElement.find(".audio-container");
@@ -97,7 +100,7 @@
             };
 
             const SendMessage = async () => {
-                const message = jqThis.find(Selectors.chatInput).val();
+                const message = jqThis.find(`.${Classes.TxtaChatMessage}`).val();
 
                 if (message.trim() === "") {
                     CommonApp.ShowToast("Digite uma mensagem para enviar.");
@@ -107,9 +110,9 @@
                 const files = attachedFiles;
                 AddMessageToChat(message, true, files);
 
-                jqThis.find(Selectors.chatInput).val("");
-                jqThis.find(Selectors.fileInput).val("");
-                jqThis.find(Selectors.filePreview).html("");
+                jqThis.find(`.${Classes.TxtaChatMessage}`).val("");
+                jqThis.find(`.${Classes.FileInput}`).val("");
+                jqThis.find(`.${Classes.FilePreview}`).html("");
 
                 attachedFiles = [];
 
@@ -117,20 +120,20 @@
             };
 
             const StartRecording = () => {
-                jqThis.find(Selectors.sendMessageButton).prop("disabled", true);
+                jqThis.find(`.${Classes.BtnSendMessage}`).prop("disabled", true);
 
                 CommonApp.StartRecording(
                     (recorder) => {
                         mediaRecorder = recorder;
-                        jqThis.find(Selectors.startRecordingButton).hide();
-                        jqThis.find(Selectors.stopRecordingButton).show();
+                        jqThis.find(`.${Classes.BtnStartRecording}`).hide();
+                        jqThis.find(`.${Classes.BtnStopRecording}`).show();
                     },
                     (transcription) => {
-                        jqThis.find(Selectors.chatInput).val(transcription);
+                        jqThis.find(`.${Classes.TxtaChatMessage}`).val(transcription);
                         SendMessage();
-                        jqThis.find(Selectors.startRecordingButton).show();
-                        jqThis.find(Selectors.stopRecordingButton).hide();
-                        jqThis.find(Selectors.sendMessageButton).prop("disabled", false);
+                        jqThis.find(`.${Classes.BtnStartRecording}`).show();
+                        jqThis.find(`.${Classes.BtnStopRecording}`).hide();
+                        jqThis.find(`.${Classes.BtnSendMessage}`).prop("disabled", false);
                     }
                 );
             };
@@ -138,20 +141,20 @@
             const StopRecording = () => {
                 if (mediaRecorder && mediaRecorder.state !== "inactive") {
                     mediaRecorder.stop();
-                    jqThis.find(Selectors.startRecordingButton).show();
-                    jqThis.find(Selectors.stopRecordingButton).hide();
+                    jqThis.find(`.${Classes.BtnStartRecording}`).show();
+                    jqThis.find(`.${Classes.BtnStopRecording}`).hide();
                 }
             };
 
             const PreviewFiles = () => {
-                attachedFiles = Array.from(jqThis.find(Selectors.fileInput)[0].files);
+                attachedFiles = Array.from(jqThis.find(`.${Classes.FileInput}`)[0].files);
 
-                jqThis.find(Selectors.filePreview).html("");
+                jqThis.find(`.${Classes.FilePreview}`).html("");
 
                 attachedFiles.forEach((file, index) => {
                     const fileCard = CreateFileCard(file, index, true);
 
-                    jqThis.find(Selectors.filePreview).append(`
+                    jqThis.find(`.${Classes.FilePreview}`).append(`
                         <div class="card flex-grow-1">
                             <div class="card-body d-flex">
                                 ${fileCard}
@@ -165,7 +168,7 @@
                 const fileType = file.type.split("/")[0];
                 const fileIcon = fileType === "image" ? `<img src="${URL.createObjectURL(file)}" class="object-fit-cover rounded w-100 h-100">` : `<i class="bi bi-file-earmark-text" style="font-size: 2em;"></i>`;
                 const downloadButton = !showRemove ? `<a href="${URL.createObjectURL(file)}" download="${file.name}" class="btn btn-sm btn-primary"><i class="bi bi-download"></i></a>` : "";
-                const removeButton = showRemove ? `<button class="btn btn-sm btn-danger remove-file" data-index="${index}"><i class="bi bi-trash"></i></button>` : "";
+                const removeButton = showRemove ? `<button class="btn btn-sm btn-danger ${Classes.BtnRemoveFile}" data-index="${index}"><i class="bi bi-trash"></i></button>` : "";
 
                 return `
                     <div class="d-flex gap-2 align-items-center align-content-between flex-grow-1 p-2 rounded text-bg-dark">
@@ -191,7 +194,7 @@
                 // Criar um novo DataTransfer para atualizar o input file
                 const dataTransfer = new DataTransfer();
                 attachedFiles.forEach(file => dataTransfer.items.add(file));
-                jqThis.find(Selectors.fileInput)[0].files = dataTransfer.files;
+                jqThis.find(`.${Classes.FileInput}`)[0].files = dataTransfer.files;
 
                 // Atualizar a visualização dos arquivos
                 PreviewFiles();
@@ -205,22 +208,27 @@
                     formData.append("chat_id", chatId);
                 }
 
+                if (threadId != null) {
+                    formData.append("thread_id", threadId);
+                }
+
                 files.forEach((file) => formData.append("files", file));
 
-                const response = await fetch("/openai/chat", { method: "POST", body: formData, });
+                const response = await fetch(settings.urlChat, { method: "POST", body: formData, });
 
                 if (response.ok) {
                     const data = await response.json();
                     chatId = data.chat_id;
+                    threadId = data.thread_id;
 
                     AddMessageToChat("Chat está processando sua mensagem...", false);
 
                     const audio = await CommonApp.TextToSpeech(data.response, false);
                     if (audio) {
-                        jqThis.find(Selectors.chatWindow).children().last().remove();
+                        jqThis.find(`.${Classes.ContentMessages}`).children().last().remove();
                         AddMessageToChat(data.response, false, [], audio.src);
                     } else {
-                        jqThis.find(Selectors.chatWindow).children().last().remove();
+                        jqThis.find(`.${Classes.ContentMessages}`).children().last().remove();
                         AddMessageToChat(data.response, false);
                     }
                 } else {

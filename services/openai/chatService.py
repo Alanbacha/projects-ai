@@ -36,11 +36,12 @@ async def chat_service(
     # Adicionar a mensagem do usuário ao histórico
     chat_histories[chat_id].append({"role": "user", "content": message})
 
+    # Processar arquivos
     for file in files:
         file_content = await file.read()
 
         # Adicionar a mensagem do usuário ao histórico
-        chat_histories[chat_id].append({"role": "user", "content": f"File received: {file.filename}"})
+        chat_histories[chat_id].append({"role": "user", "content": f"File received: {file.filename}"}) # Adicionar arquivo
 
     try:
         response = client.chat.completions.create(

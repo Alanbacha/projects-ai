@@ -7,17 +7,25 @@
         const assistant = settings.assistant;
 
         const Classes = {
+            Collapse: "assistant-collapse",
+            Content: "assistant-content",
             FrmAssistant: "assistant-form",
-            BtnDelete: "assistant-btn-delete",
             RngTemperature: "assistant-rng-temperature",
             TemperatureValue: "assistant-temperature-value",
             RngTopP: "assistant-rng-top-p",
             TopPValue: "assistant-top-p-value",
             TxtaInstructions: "assistant-txta-instructions",
-            Content: "assistant-content",
-            Collapse: "assistant-collapse",
+            BtnDelete: "assistant-btn-delete",
+            BtnEdit: "assistant-btn-edit",
+            BtnClose: "assistant-btn-close",
             Chat: "assistant-chat"
         };
+
+        const ListModels = [
+            { value: "gpt-4o", text: "GPT-4o" },
+            { value: "gpt-4-turbo", text: "GPT-4 Turbo" },
+            { value: "gpt-3.5-turbo", text: "GPT-3.5 Turbo" }
+        ];
 
         return this.each(function () {
             const jqThis = $(this);
@@ -29,19 +37,12 @@
 
             const LoadEvents = () => {
                 jqThis
-                    .on("submit", `.${Classes.FrmAssistant}`, function (event) {
-                        event.preventDefault();
-                        UpdateAssistant();
-                    })
-                    .on("click", `.${Classes.BtnDelete}`, function () {
-                        DeleteAssistant();
-                    })
-                    .on("input", `.${Classes.RngTemperature}`, function () {
-                        jqThis.find(`.${Classes.TemperatureValue}`).text(parseFloat($(this).val()).toFixed(2));
-                    })
-                    .on("input", `.${Classes.RngTopP}`, function () {
-                        jqThis.find(`.${Classes.TopPValue}`).text(parseFloat($(this).val()).toFixed(2));
-                    });
+                    .on("submit", `.${Classes.FrmAssistant}`, function (e) { e.preventDefault(); UpdateAssistant(); })
+                    .on("click", `.${Classes.BtnEdit}`, () => ToggleFrmAssistant(true))
+                    .on("click", `.${Classes.BtnClose}`, () => ToggleFrmAssistant(false))
+                    .on("click", `.${Classes.BtnDelete}`, () => DeleteAssistant())
+                    .on("input", `.${Classes.RngTemperature}`, function () { jqThis.find(`.${Classes.TemperatureValue}`).text(parseFloat($(this).val()).toFixed(2)); })
+                    .on("input", `.${Classes.RngTopP}`, function () { jqThis.find(`.${Classes.TopPValue}`).text(parseFloat($(this).val()).toFixed(2)); });
             };
 
             const LoadHtml = () => {
@@ -53,6 +54,10 @@
                     </h2>
                     <div class="accordion-collapse collapse ${Classes.Collapse}" id="assistantCollapse-${assistant.id}">
                         <div class="accordion-body">
+                            <div class="text-end border-bottom pb-2">
+                                <button type="button" class="btn btn-secondary ${Classes.BtnEdit}"><i class="bi bi-pencil"></i> Edit</button>
+                                <button type="button" class="btn btn-secondary ${Classes.BtnClose}" style="display:none"><i class="bi bi-x"></i> Close</button>
+                            </div>
                             <div class="p-2 ${Classes.Content}"></div>
                         </div>
                     </div>
@@ -65,8 +70,12 @@
             };
 
             const LoadForm = () => {
+                const optionsHtml = ListModels.map(model =>
+                    `<option value="${model.value}" ${assistant.model === model.value ? "selected" : ""}>${model.text}</option>`
+                ).join("");
+
                 const html = `
-                    <form class="${Classes.FrmAssistant}">
+                    <form class="${Classes.FrmAssistant}" style="display:none;">
                         <div class="d-flex justify-content-between gap-2 mb-2">
                             <div class="w-50">
                                 <label for="name-${assistant.id}" class="form-label">Nome do Assistente</label>
@@ -75,9 +84,7 @@
                             <div class="w-50">
                                 <label for="model-${assistant.id}" class="form-label">Modelo</label>
                                 <select id="model-${assistant.id}" class="form-select" name="model" required>
-                                    <option value="gpt-4" ${assistant.model === "gpt-4" ? "selected" : ""}>GPT-4</option>
-                                    <option value="gpt-4-turbo" ${assistant.model === "gpt-4-turbo" ? "selected" : ""}>GPT-4 Turbo</option>
-                                    <option value="gpt-3.5-turbo" ${assistant.model === "gpt-3.5-turbo" ? "selected" : ""}>GPT-3.5 Turbo</option>
+                                    ${optionsHtml}
                                 </select>
                             </div>
                         </div>
@@ -113,7 +120,8 @@
 
             const LoadChat = () => {
                 const chatElement = $(`<div class="mt-2 p-2 ${Classes.Chat}"></div>`);
-                chatElement.createChat({ appendTo: chatElement });
+                chatElement.createChat({ title: `Chat com seu assistente <b>${assistant.name}</b>`, urlChat: `/openai/assistants/${assistant.id}/thread` });
+
                 jqThis.find(`.${Classes.Content}`).append(chatElement);
             };
 
@@ -125,13 +133,19 @@
                         if (response.ok) {
                             response.json().then(data => {
                                 jqThis.find(`.${Classes.Collapse}`).collapse('hide');
-                                AssistantsApp.LoadAssistants();
+                                AssistantsApp.LoadAssistants(assistant.id);
                                 CommonApp.ShowToast("Assistente atualizado com sucesso.", "success");
                             });
                         } else {
                             CommonApp.ShowToast("Falha ao atualizar assistente.", "danger");
                         }
                     });
+            };
+
+            const ToggleFrmAssistant = (open) => {
+                $(`.${Classes.FrmAssistant}`).toggle(open);
+                $(`.${Classes.BtnEdit}`).toggle(!open);
+                $(`.${Classes.BtnClose}`).toggle(open);
             };
 
             const DeleteAssistant = () => {

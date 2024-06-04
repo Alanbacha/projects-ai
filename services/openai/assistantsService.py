@@ -1,3 +1,4 @@
+import uuid
 from openai import OpenAI
 from fastapi import APIRouter, HTTPException, File, UploadFile, Form
 from fastapi.responses import JSONResponse
@@ -14,6 +15,9 @@ api_key = os.getenv("OPENAI_ASSISTANTS_API_KEY")
 
 # Cria uma instância do cliente OpenAI
 client = OpenAI(api_key=api_key)
+
+# Dicionário para armazenar os históricos de threads
+thread_histories = {}
 
 @router.post("/assistants")
 async def create_assistant(
@@ -43,7 +47,7 @@ async def get_assistants():
     try:
         response = client.beta.assistants.list(
             order="desc",
-            limit="20",
+            limit=20,
         )
 
         # Serializar os objetos de assistentes
@@ -95,40 +99,64 @@ async def delete_assistant(assistant_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# @router.post("/assistants-chat")
-# async def assistants_chat_service(
-#     assistant_id: str = Form(...),
-#     message: str = Form(...),
-#     files: List[UploadFile] = File([])
-# ):
-#     chat_histories = {}
+@router.post("/assistants/{assistant_id}/thread")
+async def thread_service(
+    assistant_id: str,
+    thread_id: Optional[str] = Form(None),
+    message: str = Form(...),
+    files: List[UploadFile] = File([])
+):
+    if thread_id is None:
+        thread = client.beta.threads.create()
+        thread_id = thread.id
+        thread_histories[thread_id] = [{"role": "system", "content": "You are chatting with Axel, your assistant."}]
+    else:
+        if thread_id not in thread_histories:
+            thread_histories[thread_id] = [{"role": "system", "content": "You are chatting with Axel, your assistant."}]
+    
+    fileList = []
+    for file in files:
+        file_id = await upload_file_to_openai(file)
+        fileList.append({"file_id":file_id, "tools":[{"type": "file_search"}]})
 
-#     # Se não houver histórico de chat para o assistente, criar um novo
-#     if assistant_id not in chat_histories:
-#         try:
-#             assistant = client.beta.assistants.retrieve(assistant_id)
-#             chat_histories[assistant_id] = [{"role": "system", "content": assistant["instructions"]}]
-#         except Exception as e:
-#             raise HTTPException(status_code=404, detail="Assistant not found")
+    try:
+        response = client.beta.threads.messages.create(
+            thread_id=thread_id,
+            role="user",
+            content=message,
+            attachments=fileList
+        )
 
-#     # Adicionar a mensagem do usuário ao histórico
-#     chat_histories[assistant_id].append({"role": "user", "content": message})
+        thread_histories[thread_id].append({"role": "user", "content": message,"attachments":fileList})
 
-#     for file in files:
-#         file_content = await file.read()
-#         chat_histories[assistant_id].append({"role": "user", "content": f"File received: {file.filename}"})
+        run_response = client.beta.threads.runs.create_and_poll(
+            thread_id=thread_id,
+            assistant_id=assistant_id
+        )
 
-#     try:
-#         response = openai.ChatCompletion.create(
-#             model="gpt-4",
-#             messages=chat_histories[assistant_id]
-#         )
+        thread_messages = client.beta.threads.messages.list(
+            thread_id=thread_id,
+            run_id=run_response.id
+        )
         
-#         chat_response = response.choices[0].message["content"]
-#         chat_histories[assistant_id].append({"role": "assistant", "content": chat_response})
+        thread_response = thread_messages.data[0].content[0].text.value
 
-#         return JSONResponse(content={"assistant_id": assistant_id, "response": chat_response})
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
+        thread_histories[thread_id].append({"role": "assistant", "content": thread_response})
+
+        return JSONResponse(content={"thread_id": thread_id, "response": thread_response})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def upload_file_to_openai(file: UploadFile):
+    try:
+        response = client.files.create(
+            file=(file.filename, file.file.read()),
+            purpose='user_data'
+        )
+
+        return response.id
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to upload file: {str(e)}")
 
 assistantsRouter = router

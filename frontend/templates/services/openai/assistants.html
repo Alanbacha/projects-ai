@@ -8,7 +8,7 @@
 	<div class="card-body">
 		<div class="d-flex justify-content-between align-items-center">
 			<h1 class="card-title">Assistentes OpenAI</h1>
-			<button id="createAssistantButton" class="btn btn-primary">Criar Assistente</button>
+			<button id="createAssistantButton" class="btn btn-primary"><i class="bi bi-plus"></i> Criar Assistente</button>
 		</div>
 		<div id="assistantsList" class="accordion">
 			<!-- Lista de Assistentes -->
@@ -16,7 +16,7 @@
 	</div>
 </div>
 
-<!-- Modal de Criação/Atualização de Assistente -->
+<!-- Modal de Criação de Assistente -->
 <div class="modal fade" id="assistantModal" tabindex="-1" aria-labelledby="assistantModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -68,43 +68,6 @@
 					<button type="submit" id="assistantModalSubmit" class="btn btn-primary">Criar</button>
 				</div>
 			</form>
-		</div>
-	</div>
-</div>
-
-<!-- Modal de Confirmação -->
-<div class="modal fade" id="confirmChangeModal" tabindex="-1" aria-labelledby="confirmChangeModalLabel" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="confirmChangeModalLabel">Confirmar Mudança de Assistente</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body">
-				Tem certeza de que deseja mudar o assistente? Isso limpará o chat atual.
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-				<button type="button" class="btn btn-primary" id="confirmChangeButton">Confirmar</button>
-			</div>
-		</div>
-	</div>
-</div>
-
-<!-- Modal de Informações -->
-<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="infoModalLabel">Informações</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body" id="infoModalBody">
-				<!-- Conteúdo dinâmico -->
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-			</div>
 		</div>
 	</div>
 </div>
