@@ -10,6 +10,7 @@ const AssistantsApp = (() => {
 		TemperatureValue: "#temperatureValue", // Seletor para exibir o valor da temperatura
 		AssistantTopP: "#assistantTopP", // Seletor do campo de Top P do assistente
 		TopPValue: "#topPValue", // Seletor para exibir o valor do Top P
+		AssistantAccordionItem: ".assistant-accordion-item" // Seletor do accordion-item do assistente
 	};
 
 	// Função de inicialização da aplicação
@@ -40,11 +41,12 @@ const AssistantsApp = (() => {
 	};
 
 	// Carrega os assistentes da API
-	const LoadAssistants = async (assistantId) => {
+	const LoadAssistants = async (assistantId = 0) => {
 		const response = await fetch("/openai/assistants"); // Requisição para obter os assistentes
 		if (response.ok) {
 			const assistants = await response.json(); // Obtém os assistentes da resposta
 			DisplayAssistants(assistants); // Exibe os assistentes na interface
+			OpenAssistant(assistantId); // Abre o assistente passado como parametro
 		} else {
 			CommonApp.ShowToast("Falha ao carregar assistentes.", "danger"); // Exibe um toast em caso de falha na requisição
 		}
@@ -56,10 +58,24 @@ const AssistantsApp = (() => {
 		list.html(""); // Limpa o conteúdo atual da lista
 
 		assistants.forEach(assistant => {
-			const assistantElement = $(`<div class="accordion-item"></div>`); // Cria um elemento para o assistente
+			const assistantElement = $(`<div class="accordion-item assistant-accordion-item" data-assistant-id="${assistant.id}"></div>`); // Cria um elemento para o assistente
 			assistantElement.createAssistant({ assistant }); // Chama a função para criar o assistente
 			list.append(assistantElement); // Adiciona o assistente à lista
 		});
+	};
+
+	// Abre o assistente passado como parametro
+	const OpenAssistant = (assistantId = 0) => {
+		const list = $(Selectors.AssistantsList); // Seleciona a lista de assistentes
+		const listAccordionItem = list.find(`${Selectors.AssistantAccordionItem}`);
+
+		if (listAccordionItem.length > 0) {
+			if (assistantId == 0) {
+				assistantId = listAccordionItem.first().data("assistant-id"); // Obtém o primeiro id de assistente da lista
+			}
+
+			listAccordionItem.filter(`[data-assistant-id="${assistantId}"]`).find('.accordion-button').click(); // Invoca o evento de click do botão para abrir o accordion
+		}
 	};
 
 	// Mostra o formulário de criação de assistente

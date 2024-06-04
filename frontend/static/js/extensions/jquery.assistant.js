@@ -11,7 +11,6 @@
 
 		// Definindo classes CSS usadas no plugin
 		const Classes = {
-			Collapse: "assistant-collapse",
 			ContentForm: "assistant-content-form",
 			ContentChat: "assistant-content-chat",
 			FrmAssistant: "assistant-form",
@@ -51,7 +50,7 @@
 							${assistant.name}
 						</button>
 					</h2>
-					<div class="accordion-collapse collapse ${Classes.Collapse}" id="assistantCollapse-${assistant.id}">
+					<div class="accordion-collapse collapse" id="assistantCollapse-${assistant.id}">
 						<div class="accordion-body p-2">
 							<div class="list-group list-group-horizontal" role="tablist">
 							<a class="list-group-item list-group-item-action active" id="assistant-chat-${assistant.id}" data-bs-toggle="list" href="#assistant-chat-content${assistant.id}" role="tab" aria-controls="assistant-chat-content${assistant.id}"><i class="bi bi-chat"></i> Chat</a>
@@ -155,7 +154,6 @@
 					.then(response => {
 						if (response.ok) {
 							response.json().then(data => {
-								jqThis.find(`.${Classes.Collapse}`).collapse('hide'); // Escondendo o painel do assistente após a atualização
 								AssistantsApp.LoadAssistants(assistant.id); // Recarregando a lista de assistentes após a atualização
 								CommonApp.ShowToast("Assistente atualizado com sucesso.", "success"); // Exibindo uma mensagem de sucesso
 							});
