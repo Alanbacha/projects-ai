@@ -4,7 +4,7 @@
             minHeight: '200px',
             maxHeight: '400px',
             urlChat: '/openai/chat',
-            title: '<i class="bi bi-chat"></i> Chat OpenAI'
+            title: 'Chat OpenAI'
         }, options);
 
         const Classes = {
@@ -13,8 +13,9 @@
             BtnStartRecording: "chat-btn-start-recording",
             BtnStopRecording: "chat-btn-stop-recording",
             BtnSendMessage: "chat-btn-send-message",
-            FileInput: "file-input",
-            FilePreview: "file-preview",
+            FileInput: "chat-file-input",
+            LblFileInput: "chat-file-input-label",
+            FilePreview: "chat-file-preview",
             BtnRemoveFile: "chat-btn-remove-file"
         };
 
@@ -33,12 +34,12 @@
 
             const LoadHtml = () => {
                 jqThis.html(`
-                    ${settings.title.length ? `<h2 class="card-title">${settings.title}</h2>` : ''}
+                    ${settings.title.length ? `<h3 class="card-title"><i class="bi bi-chat"></i> ${settings.title}</h3>` : ''}
                     <div class="d-flex flex-column gap-2 p-2 bg-white rounded overflow-y-auto ${Classes.ContentMessages}" style="min-height: ${settings.minHeight}; max-height: ${settings.maxHeight}"></div>
                     <textarea class="form-control mt-2 ${Classes.TxtaChatMessage}" placeholder="Digite sua mensagem..." rows="3"></textarea>
                     <div class="mt-2">
                         <div class="d-flex justify-content-between align-items-center">
-                            <label class="btn btn-secondary file-input-label"><i class="bi bi-paperclip"></i> Adicionar Arquivos</label>
+                            <label class="btn btn-secondary ${Classes.LblFileInput}"><i class="bi bi-paperclip"></i> Adicionar Arquivos</label>
                             <input type="file" class="d-none ${Classes.FileInput}" multiple />
                             <div>
                                 <button class="btn btn-success ms-2 ${Classes.BtnStartRecording}"><i class="bi bi-mic-fill"></i> Iniciar Gravação</button>
@@ -57,15 +58,9 @@
                     .on("click", `.${Classes.BtnStartRecording}`, StartRecording)
                     .on("click", `.${Classes.BtnStopRecording}`, StopRecording)
                     .on("change", `.${Classes.FileInput}`, PreviewFiles)
-                    .on("click", `.${Classes.BtnRemoveFile}`, function () {
-                        const index = $(this).data("index");
-                        RemoveFile(index);
-                    });
-
-                // Evento para acionar o input de arquivos ao clicar no label
-                jqThis.find('.file-input-label').on('click', function () {
-                    jqThis.find(`.${Classes.FileInput}`).click();
-                });
+                    .on("click", `.${Classes.LblFileInput}`, () => jqThis.find(`.${Classes.FileInput}`).click())
+                    .on("click", `.${Classes.BtnRemoveFile}`, function () { const index = $(this).data("index"); RemoveFile(index); })
+                    ;
             };
 
             const CreateMessage = (content, isUser = true, files = [], audioUrl = null) => {

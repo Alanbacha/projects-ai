@@ -55,8 +55,8 @@
                     <div class="accordion-collapse collapse ${Classes.Collapse}" id="assistantCollapse-${assistant.id}">
                         <div class="accordion-body">
                             <div class="text-end border-bottom pb-2">
-                                <button type="button" class="btn btn-secondary ${Classes.BtnEdit}"><i class="bi bi-pencil"></i> Edit</button>
-                                <button type="button" class="btn btn-secondary ${Classes.BtnClose}" style="display:none"><i class="bi bi-x"></i> Close</button>
+                                <button type="button" class="btn btn-secondary ${Classes.BtnEdit}"><i class="bi bi-pencil"></i> Modificar o Assistente</button>
+                                <button type="button" class="btn btn-secondary ${Classes.BtnClose}" style="display:none"><i class="bi bi-x"></i> Cancelar modificação</button>
                             </div>
                             <div class="p-2 ${Classes.Content}"></div>
                         </div>
