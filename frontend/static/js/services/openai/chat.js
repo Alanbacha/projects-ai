@@ -1,11 +1,12 @@
 const ChatApp = (() => {
 	const Selectors = {
 		ParentSelector: "#chatApp", // Seletor do elemento pai da aplicação de chat
+		ComponentChat: ".openai-chat", // Seletor do elemento Chat
 	};
 
 	// Função de inicialização da aplicação
 	const Init = () => {
-		$(Selectors.ParentSelector).find('.chat-openai').createChat(); // Inicializa o chat em todos os elementos com a classe '.chat-openai'
+		$(Selectors.ParentSelector).find(Selectors.ComponentChat).createChat(); // Inicializa o chat em todos os elementos com a classe '.openai-chat'
 	};
 
 	Init(); // Chama a função de inicialização
