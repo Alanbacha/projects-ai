@@ -1,14 +1,17 @@
 const TTSWhisperApp = (() => {
 	const Selectors = {
-		ParentSelector: "#ttsWhisperApp",
+		ParentSelector: "#ttsWhisperApp", // Seletor do elemento pai da aplicação TTSWhisper
 	};
 
+	// Função de inicialização da aplicação
 	const Init = () => {
+		// Inicializa o componente TTS em todos os elementos com a classe '.component-tts'
 		$(Selectors.ParentSelector).find('.component-tts').createTTS();
+		// Inicializa o componente Whisper em todos os elementos com a classe '.component-whisper'
 		$(Selectors.ParentSelector).find('.component-whisper').createWhisper();
 	};
 
-	Init();
+	Init(); // Chama a função de inicialização
 
-	return {};
+	return {}; // Retorna um objeto vazio
 })();

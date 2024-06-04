@@ -1,86 +1,99 @@
 const AssistantsApp = (() => {
-    const Selectors = {
-        CreateAssistantButton: "#createAssistantButton",
-        CreateAssistantForm: "#createAssistantForm",
-        AssistantsList: "#assistantsList",
-        ParentSelector: "#assistantsApp",
-        AssistantModal: "#assistantModal",
-        AssistantTemperature: "#assistantTemperature",
-        TemperatureValue: "#temperatureValue",
-        AssistantTopP: "#assistantTopP",
-        TopPValue: "#topPValue",
-    };
+	const Selectors = {
+		CreateAssistantButton: "#createAssistantButton", // Seletor do botão para criar assistente
+		CreateAssistantForm: "#createAssistantForm", // Seletor do formulário para criar assistente
+		AssistantsList: "#assistantsList", // Seletor da lista de assistentes
+		ParentSelector: "#assistantsApp", // Seletor do elemento pai da aplicação de assistentes
+		AssistantModal: "#assistantModal", // Seletor do modal para criar/editar assistente
+		AssistantModel: "#assistantModel", // Seletor do campo de seleção de modelo de assistente
+		AssistantTemperature: "#assistantTemperature", // Seletor do campo de temperatura do assistente
+		TemperatureValue: "#temperatureValue", // Seletor para exibir o valor da temperatura
+		AssistantTopP: "#assistantTopP", // Seletor do campo de Top P do assistente
+		TopPValue: "#topPValue", // Seletor para exibir o valor do Top P
+	};
 
-    const Init = () => {
-        $(function () {
-            LoadEvents();
-            LoadAssistants();
-        });
-    };
+	// Função de inicialização da aplicação
+	const Init = () => {
+		$(function () {
+			LoadEvents(); // Carregando os eventos
+			LoadAssistants(); // Carregando os assistentes
+			ModalUpdateModels(); // Atualizando os modelos no modal
+		});
+	};
 
-    const LoadEvents = () => {
-        $(Selectors.ParentSelector)
-            .on("click", Selectors.CreateAssistantButton, ShowCreateAssistantForm)
+	// Carrega os eventos da aplicação
+	const LoadEvents = () => {
+		$(Selectors.ParentSelector)
+			.on("click", Selectors.CreateAssistantButton, ShowCreateAssistantForm); // Evento para mostrar o formulário de criação de assistente
 
-        $(Selectors.AssistantModal)
-            .on("submit", Selectors.CreateAssistantForm, function (event) {
-                event.preventDefault();
-                CreateAssistant();
-            })
-            .on("input", Selectors.AssistantTemperature, function () {
-                $(Selectors.TemperatureValue).text(parseFloat($(this).val()).toFixed('2'));
-            })
-            .on("input", Selectors.AssistantTopP, function () {
-                $(Selectors.TopPValue).text(parseFloat($(this).val()).toFixed('2'));
-            })
-            ;
-    };
+		$(Selectors.AssistantModal)
+			.on("submit", Selectors.CreateAssistantForm, function (event) {
+				event.preventDefault();
+				CreateAssistant();
+			}) // Evento de submissão do formulário de criação de assistente
+			.on("input", Selectors.AssistantTemperature, function () {
+				$(Selectors.TemperatureValue).text(parseFloat($(this).val()).toFixed(2)); // Atualiza o valor da temperatura exibido
+			}) // Evento de alteração do campo de temperatura
+			.on("input", Selectors.AssistantTopP, function () {
+				$(Selectors.TopPValue).text(parseFloat($(this).val()).toFixed(2)); // Atualiza o valor do Top P exibido
+			}); // Evento de alteração do campo de Top P
+	};
 
-    const LoadAssistants = async (assistantId) => {
-        const response = await fetch("/openai/assistants");
-        if (response.ok) {
-            const assistants = await response.json();
-            DisplayAssistants(assistants);
-            // assistantId
-        } else {
-            CommonApp.ShowToast("Falha ao carregar assistentes.", "danger");
-        }
-    };
+	// Carrega os assistentes da API
+	const LoadAssistants = async (assistantId) => {
+		const response = await fetch("/openai/assistants"); // Requisição para obter os assistentes
+		if (response.ok) {
+			const assistants = await response.json(); // Obtém os assistentes da resposta
+			DisplayAssistants(assistants); // Exibe os assistentes na interface
+		} else {
+			CommonApp.ShowToast("Falha ao carregar assistentes.", "danger"); // Exibe um toast em caso de falha na requisição
+		}
+	};
 
-    const DisplayAssistants = (assistants) => {
-        const list = $(Selectors.AssistantsList);
-        list.html("");
+	// Exibe os assistentes na lista
+	const DisplayAssistants = (assistants) => {
+		const list = $(Selectors.AssistantsList); // Seleciona a lista de assistentes
+		list.html(""); // Limpa o conteúdo atual da lista
 
-        assistants.forEach(assistant => {
-            const assistantElement = $(`<div class="accordion-item"></div>`);
-            assistantElement.createAssistant({ assistant });
-            list.append(assistantElement);
-        });
-    };
+		assistants.forEach(assistant => {
+			const assistantElement = $(`<div class="accordion-item"></div>`); // Cria um elemento para o assistente
+			assistantElement.createAssistant({ assistant }); // Chama a função para criar o assistente
+			list.append(assistantElement); // Adiciona o assistente à lista
+		});
+	};
 
-    const ShowCreateAssistantForm = () => {
-        $(Selectors.CreateAssistantForm).trigger("reset");
-        $(Selectors.AssistantModal).modal("show");
-    };
+	// Mostra o formulário de criação de assistente
+	const ShowCreateAssistantForm = () => {
+		$(Selectors.CreateAssistantForm).trigger("reset"); // Limpa o formulário
+		$(Selectors.AssistantModal).modal("show"); // Mostra o modal
+	};
 
-    const CreateAssistant = () => {
-        const formData = new FormData($(Selectors.CreateAssistantForm)[0]);
+	// Atualiza os modelos disponíveis no modal
+	const ModalUpdateModels = () => {
+		const optionsHtml = CommonApp.AssistantsListModels.map(model =>
+			`<option value="${model.value}">${model.text}</option>` // Gera as opções de seleção com base nos modelos disponíveis
+		).join("");
 
-        fetch("/openai/assistants", { method: "POST", body: formData })
-            .then(response => {
-                if (response.ok) {
-                    LoadAssistants();
-                    CommonApp.ShowToast("Assistente criado com sucesso.", "success");
-                    $(Selectors.AssistantModal).modal("hide");
-                } else {
-                    CommonApp.ShowToast("Falha ao criar assistente.", "danger");
-                }
-            });
+		$(Selectors.AssistantModel).html(optionsHtml); // Atualiza o HTML do campo de seleção de modelo
+	};
 
+	// Cria um novo assistente
+	const CreateAssistant = () => {
+		const formData = new FormData($(Selectors.CreateAssistantForm)[0]); // Obtém os dados do formulário
 
-    };
+		fetch("/openai/assistants", { method: "POST", body: formData }) // Envia uma requisição para criar o assistente
+			.then(response => {
+				if (response.ok) {
+					LoadAssistants(); // Recarrega a lista de assistentes
+					CommonApp.ShowToast("Assistente criado com sucesso.", "success"); // Exibe um toast de sucesso
+					$(Selectors.AssistantModal).modal("hide"); // Esconde o modal de criação de assistente
+				} else {
+					CommonApp.ShowToast("Falha ao criar assistente.", "danger"); // Exibe um toast em caso de falha
+				}
+			});
+	};
 
-    Init();
+	Init(); // Inicializa a aplicação
 
-    return { LoadAssistants };
+	return { LoadAssistants }; // Retorna o método para carregar os assistentes
 })();

@@ -1,9 +1,9 @@
-from openai import OpenAI
-from fastapi import APIRouter, HTTPException, UploadFile, File
-from fastapi.responses import JSONResponse
-from io import BytesIO
-import os
-from dotenv import load_dotenv
+from openai import OpenAI  # Importa a classe OpenAI do módulo openai
+from fastapi import APIRouter, HTTPException, UploadFile, File # Importa os módulos necessários do FastAPI)
+from fastapi.responses import JSONResponse  # Importa a classe JSONResponse do FastAPI
+from io import BytesIO  # Importa BytesIO para manipulação de dados em memória
+import os  # Importa o módulo os para lidar com variáveis de ambiente
+from dotenv import load_dotenv  # Importa a função load_dotenv do módulo dotenv
 
 # Carrega variáveis de ambiente do arquivo .env
 load_dotenv()
@@ -15,9 +15,9 @@ api_key = os.getenv("OPENAI_API_KEY")
 # Cria uma instância do cliente OpenAI
 client = OpenAI(api_key=api_key)
 
+# Define a rota POST para o serviço Whisper
 @router.post("/whisper")
 async def whisper_service(file: UploadFile = File(...)):
-    # Cria uma instância do cliente OpenAI
     try:
         # Lê o conteúdo do arquivo de áudio
         audio_bytes = await file.read()

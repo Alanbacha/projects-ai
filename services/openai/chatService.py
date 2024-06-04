@@ -1,10 +1,10 @@
-from openai import OpenAI
-from fastapi import APIRouter, HTTPException, File, UploadFile, Form
-from fastapi.responses import JSONResponse
-from typing import Optional, List
-from dotenv import load_dotenv
-import os
-import uuid
+from openai import OpenAI  # Importa a classe OpenAI do módulo openai
+from fastapi import APIRouter, HTTPException, File, UploadFile, Form # Importa os módulos necessários do FastAPI
+from fastapi.responses import JSONResponse  # Importa a classe JSONResponse do módulo fastapi.responses
+from typing import Optional, List  # Importa tipos opcionais e listas do módulo typing
+from dotenv import load_dotenv  # Importa a função load_dotenv do módulo dotenv
+import os  # Importa o módulo os para lidar com variáveis de ambiente
+import uuid  # Importa o módulo uuid para gerar IDs únicos
 
 # Carregar variáveis de ambiente do arquivo .env
 load_dotenv()
@@ -19,11 +19,12 @@ client = OpenAI(api_key=api_key)
 # Dicionário para armazenar os históricos de chat
 chat_histories = {}
 
+# Define a rota POST para o serviço de chat
 @router.post("/chat")
 async def chat_service(
     chat_id: Optional[str] = Form(None),
     message: str = Form(...),
-    files: List[UploadFile] = File([])
+    files: List[UploadFile] = File([]),
 ):
     # Se não houver chat_id, criar um novo chat
     if chat_id is None:
@@ -57,6 +58,8 @@ async def chat_service(
 
         return JSONResponse(content={"chat_id": chat_id, "response": chat_response})
     except Exception as e:
+        # Retorna um erro 500 em caso de falha
         raise HTTPException(status_code=500, detail=str(e))
 
+# Define o roteador para ser incluído no controlador principal
 chatRouter = router

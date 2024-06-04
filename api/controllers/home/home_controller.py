@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from fastapi import APIRouter, Request  # Importa a classe APIRouter e Request do FastAPI
+from fastapi.responses import HTMLResponse  # Importa a classe HTMLResponse do FastAPI para respostas HTML
+from fastapi.templating import Jinja2Templates  # Importa a classe Jinja2Templates do FastAPI para renderização de templates
 
 # Cria um roteador para as rotas da página inicial
 router = APIRouter()

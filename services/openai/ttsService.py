@@ -1,10 +1,10 @@
-from openai import OpenAI
-from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
-from dotenv import load_dotenv
-import os
-import io
+from openai import OpenAI  # Importa a classe OpenAI do módulo openai
+from fastapi import APIRouter, HTTPException # Importa os módulos necessários do FastAPI
+from pydantic import BaseModel  # Importa a classe BaseModel do módulo pydantic
+from dotenv import load_dotenv  # Importa a função load_dotenv do módulo dotenv
+import os  # Importa o módulo os para lidar com variáveis de ambiente
+import io  # Importa o módulo io para manipulação de entrada e saída em memória
 
 # Carrega variáveis de ambiente do arquivo .env
 load_dotenv()
@@ -20,6 +20,7 @@ client = OpenAI(api_key=api_key)
 class TextToSpeechRequest(BaseModel):
     text: str
 
+# Define a rota POST para o serviço TTS
 @router.post("/tts")
 async def tts_service(request: TextToSpeechRequest):
     try:
@@ -30,6 +31,7 @@ async def tts_service(request: TextToSpeechRequest):
             input=request.text
         )
         
+        # Converte a resposta em um fluxo de bytes e retorna como resposta de streaming
         audio_stream = io.BytesIO(response.content)
         return StreamingResponse(audio_stream, media_type="audio/mpeg")
     except Exception as e:

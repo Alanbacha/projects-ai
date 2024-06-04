@@ -1,5 +1,5 @@
-from fastapi import FastAPI
-from api.controllers.home.home_controller import router as main_router
+from fastapi import FastAPI  # Importa a classe FastAPI do FastAPI
+from api.controllers.home.home_controller import router as main_router  # Importa o roteador principal da página inicial
 
 # Cria uma instância da aplicação FastAPI
 app = FastAPI()
