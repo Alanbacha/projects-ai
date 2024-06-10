@@ -20,7 +20,7 @@ async def tts_whisper_page(request: Request):
 	# Renderiza o template 'tts_whisper.html' e passa o objeto 'request'
     return templates.TemplateResponse("openai/tts_whisper.html", {"request": request})
 
-# Rota para a página de chat
+# Rota para a página de Chat
 @router.get("/openai/chat", response_class=HTMLResponse)
 async def chat_page(request: Request):
 	# Renderiza o template 'chat.html' e passa o objeto 'request'

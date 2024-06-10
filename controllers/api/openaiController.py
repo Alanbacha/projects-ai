@@ -1,4 +1,3 @@
-import io  # Importa o módulo io para manipulação de entrada e saída em memória
 from fastapi import APIRouter, File, HTTPException, UploadFile, Form # Importa os módulos necessários do FastAPI
 from typing import Optional, List
 from fastapi.responses import JSONResponse, StreamingResponse  # Importa tipos opcionais e listas do módulo typing
