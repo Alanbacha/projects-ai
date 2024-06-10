@@ -42,7 +42,7 @@ const AssistantsApp = (() => {
 
 	// Carrega os assistentes da API
 	const LoadAssistants = async (assistantId = 0) => {
-		const response = await fetch("/openai/assistants"); // Requisição para obter os assistentes
+		const response = await fetch("/api/openai/assistants"); // Requisição para obter os assistentes
 		if (response.ok) {
 			const assistants = await response.json(); // Obtém os assistentes da resposta
 			DisplayAssistants(assistants); // Exibe os assistentes na interface
@@ -97,7 +97,7 @@ const AssistantsApp = (() => {
 	const CreateAssistant = () => {
 		const formData = new FormData($(Selectors.CreateAssistantForm)[0]); // Obtém os dados do formulário
 
-		fetch("/openai/assistants", { method: "POST", body: formData }) // Envia uma requisição para criar o assistente
+		fetch("/api/openai/assistants", { method: "POST", body: formData }) // Envia uma requisição para criar o assistente
 			.then(response => {
 				if (response.ok) {
 					LoadAssistants(); // Recarrega a lista de assistentes

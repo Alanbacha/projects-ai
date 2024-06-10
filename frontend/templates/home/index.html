@@ -1,7 +1,6 @@
 {% extends "layout.html" %}
 {% block title %}Home{% endblock %}
 {% block head %}
-<link rel="stylesheet" href="/static/css/home/index.css" />
 {% endblock %}
 {% block content %}
 <div class="card my-2">
@@ -10,13 +9,13 @@
 		<p class="card-text">Explore os serviços disponíveis:</p>
 		<div class="card-group">
 			<div class="card">
-				<a href="/openai_services">
+				<a href="/openai">
 					<img src="/static/images/openai.webp" class="card-img-top" alt="OpenAI" />
 				</a>
 				<div class="card-body bg-light text-dark">
 					<h5 class="card-title"><i class="bi bi-cloud"></i> OpenAI</h5>
 					<p class="card-text">Serviços de IA da OpenAI.</p>
-					<a href="/openai_services" class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Acessar</a>
+					<a href="/openai" class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Acessar</a>
 				</div>
 			</div>
 			<div class="card">

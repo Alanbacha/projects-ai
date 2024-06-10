@@ -51,7 +51,7 @@
 						</button>
 					</h2>
 					<div class="accordion-collapse collapse" id="assistantCollapse-${assistant.id}">
-						<div class="accordion-body p-2">
+						<div class="accordion-body bg-body-tertiary p-2">
 							<div class="list-group list-group-horizontal" role="tablist">
 							<a class="list-group-item list-group-item-action active" id="assistant-chat-${assistant.id}" data-bs-toggle="list" href="#assistant-chat-content${assistant.id}" role="tab" aria-controls="assistant-chat-content${assistant.id}"><i class="bi bi-chat"></i> Chat</a>
 								<a class="list-group-item list-group-item-action" id="assistant-crud-${assistant.id}" data-bs-toggle="list" href="#assistant-crud-content-${assistant.id}" role="tab" aria-controls="assistant-crud-content-${assistant.id}"><i class="bi bi-person"></i> Assistente</a>
@@ -141,7 +141,7 @@
 			// Função para carregar o chat do assistente
 			const LoadChat = () => {
 				const chatElement = $(`<div class="mt-2 p-2 ${Classes.Chat}"></div>`); // Criando o elemento do chat
-				chatElement.createChat({ title: `Chat com seu assistente <b>${assistant.name}</b>`, urlChat: `/openai/assistants/${assistant.id}/thread` }); // Adicionando o plugin de chat ao elemento
+				chatElement.createChat({ title: `Chat com seu assistente <b>${assistant.name}</b>`, urlChat: `/api/openai/assistants/${assistant.id}/thread` }); // Adicionando o plugin de chat ao elemento
 
 				jqThis.find(`.${Classes.ContentChat}`).append(chatElement); // Adicionando o chat ao elemento de conteúdo do chat
 			};
@@ -150,7 +150,7 @@
 			const UpdateAssistant = () => {
 				const formData = new FormData(jqThis.find(`.${Classes.FrmAssistant}`)[0]); // Obtendo os dados do formulário como FormData
 
-				fetch(`/openai/assistants/${assistant.id}`, { method: "PUT", body: formData }) // Enviando os dados para atualizar o assistente
+				fetch(`/api/openai/assistants/${assistant.id}`, { method: "PUT", body: formData }) // Enviando os dados para atualizar o assistente
 					.then(response => {
 						if (response.ok) {
 							response.json().then(data => {
@@ -166,7 +166,7 @@
 			// Função para excluir o assistente
 			const DeleteAssistant = () => {
 				if (confirm("Tem certeza de que deseja excluir este assistente?")) { // Solicitando confirmação antes da exclusão
-					fetch(`/openai/assistants/${assistant.id}`, { method: "DELETE" }) // Enviando a solicitação de exclusão
+					fetch(`/api/openai/assistants/${assistant.id}`, { method: "DELETE" }) // Enviando a solicitação de exclusão
 						.then(response => {
 							if (response.ok) {
 								AssistantsApp.LoadAssistants(); // Recarregando a lista de assistentes após a exclusão

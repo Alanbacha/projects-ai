@@ -5,7 +5,7 @@
 		const settings = $.extend({
 			minHeight: '200px',
 			maxHeight: '400px',
-			urlChat: '/openai/chat',
+			urlChat: '/api/openai/chat',
 			title: 'Chat OpenAI'
 		}, options);
 

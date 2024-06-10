@@ -34,7 +34,7 @@ const CommonApp = (() => {
 				const formData = new FormData();
 				formData.append("file", audioBlob, "audio.webm"); // Adicionando o Blob ao FormData
 
-				const response = await fetch("/openai/whisper", { method: "POST", body: formData }); // Enviando o áudio para transcrição
+				const response = await fetch("/api/openai/whisper", { method: "POST", body: formData }); // Enviando o áudio para transcrição
 
 				if (response.ok) {
 					const data = await response.json();
@@ -54,11 +54,10 @@ const CommonApp = (() => {
 
 	// Função para converter texto em fala
 	const TextToSpeech = async (text, autoplay = true) => {
-		const response = await fetch("/openai/tts", {
-			method: "POST",
-			headers: { "Content-Type": "application/json", },
-			body: JSON.stringify({ text }), // Enviando o texto para a API de conversão de texto em fala
-		});
+		const formData = new FormData();
+		formData.append("text", text);
+
+		const response = await fetch("/api/openai/tts", { method: "POST", body: formData });
 
 		if (response.ok) {
 			const audioBlob = await response.blob(); // Convertendo a resposta em um Blob de áudio

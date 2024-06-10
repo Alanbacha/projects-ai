@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from api.controllers.home.home_controller import router as home_router
-from api.controllers.services.openai_controller import router as openai_router
+
+from controllers.homeController import router as home_router
+from controllers.openaiController import router as openai_router
+
+from controllers.api.openaiController import router as api_openai_router
 
 app = FastAPI()
 
@@ -10,6 +13,8 @@ app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
 
 app.include_router(home_router)
 app.include_router(openai_router)
+
+app.include_router(api_openai_router)
 
 if __name__ == '__main__':
 	import uvicorn
