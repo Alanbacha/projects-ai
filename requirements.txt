@@ -1,6 +1,5 @@
 fastapi
 jinja2
 openai
-pydub
 python-dotenv
 uvicorn

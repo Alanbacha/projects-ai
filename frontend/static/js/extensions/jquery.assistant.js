@@ -154,7 +154,7 @@
 					.then(response => {
 						if (response.ok) {
 							response.json().then(data => {
-								AssistantsApp.LoadAssistants(assistant.id); // Recarregando a lista de assistentes após a atualização
+								OpenAiAssistants.LoadAssistants(assistant.id); // Recarregando a lista de assistentes após a atualização
 								CommonApp.ShowToast("Assistente atualizado com sucesso.", "success"); // Exibindo uma mensagem de sucesso
 							});
 						} else {
@@ -169,7 +169,7 @@
 					fetch(`/api/openai/assistants/${assistant.id}`, { method: "DELETE" }) // Enviando a solicitação de exclusão
 						.then(response => {
 							if (response.ok) {
-								AssistantsApp.LoadAssistants(); // Recarregando a lista de assistentes após a exclusão
+								OpenAiAssistants.LoadAssistants(); // Recarregando a lista de assistentes após a exclusão
 								CommonApp.ShowToast("Assistente deletado com sucesso.", "success"); // Exibindo uma mensagem de sucesso
 							} else {
 								CommonApp.ShowToast("Falha ao deletar assistente.", "danger"); // Exibindo uma mensagem de falha

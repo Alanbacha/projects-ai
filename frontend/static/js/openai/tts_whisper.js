@@ -1,6 +1,6 @@
-const TTSWhisperApp = (() => {
+const OpenAiTtsWhisper = (() => {
 	const Selectors = {
-		ParentSelector: "#ttsWhisperApp", // Seletor do elemento pai da aplicação TTSWhisper
+		ParentSelector: "#openAiTtsWhisper", // Seletor do elemento pai da aplicação TTSWhisper
 		OpenAiTTS: ".openai-tts", // Seletor do elemento TTS
 		OpenAiWhisper: ".openai-whisper", // Seletor do elemento Whisper
 	};

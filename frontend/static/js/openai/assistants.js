@@ -1,9 +1,9 @@
-const AssistantsApp = (() => {
+const OpenAiAssistants = (() => {
 	const Selectors = {
 		CreateAssistantButton: "#createAssistantButton", // Seletor do botão para criar assistente
 		CreateAssistantForm: "#createAssistantForm", // Seletor do formulário para criar assistente
 		AssistantsList: "#assistantsList", // Seletor da lista de assistentes
-		ParentSelector: "#assistantsApp", // Seletor do elemento pai da aplicação de assistentes
+		ParentSelector: "#openAiAssistants", // Seletor do elemento pai da aplicação de assistentes
 		AssistantModal: "#assistantModal", // Seletor do modal para criar/editar assistente
 		AssistantModel: "#assistantModel", // Seletor do campo de seleção de modelo de assistente
 		AssistantTemperature: "#assistantTemperature", // Seletor do campo de temperatura do assistente

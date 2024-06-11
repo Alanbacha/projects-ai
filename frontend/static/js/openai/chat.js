@@ -1,6 +1,6 @@
-const ChatApp = (() => {
+const OpenAiChat = (() => {
 	const Selectors = {
-		ParentSelector: "#chatApp", // Seletor do elemento pai da aplicação de chat
+		ParentSelector: "#openAiChat", // Seletor do elemento pai da aplicação de chat
 		ComponentChat: ".openai-chat", // Seletor do elemento Chat
 	};
 
