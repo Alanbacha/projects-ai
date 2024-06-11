@@ -1,12 +1,12 @@
 (function ($) {
-	// Definindo um novo plugin jQuery chamado createWhisper
-	$.fn.createWhisper = function () {
+	// Definindo um novo plugin jQuery chamado createSTT
+	$.fn.createSTT = function () {
 		// Definindo classes CSS usadas no plugin
 		const Classes = {
-			BtnStartRecording: "whisper-btn-start-recording",
-			BtnStopRecording: "whisper-btn-stop-recording",
-			TranscriptionCard: "whisper-transcription-card",
-			TranscriptionOutput: "whisper-transcription-output"
+			BtnStartRecording: "stt-btn-start-recording",
+			BtnStopRecording: "stt-btn-stop-recording",
+			TranscriptionCard: "stt-transcription-card",
+			TranscriptionOutput: "stt-transcription-output"
 		};
 
 		let mediaRecorder; // Variável para armazenar o MediaRecorder
@@ -24,7 +24,7 @@
 			// Função para carregar o HTML
 			const LoadHtml = () => {
 				jqThis.html(`
-					<h5 class="card-title">Serviço de Transcrição (Whisper)</h5>
+					<h5 class="card-title">Serviço de Transcrição (STT - Sppech to Text)</h5>
 					<button class="btn btn-success ${Classes.BtnStartRecording}"><i class="bi bi-mic-fill"></i> Iniciar Gravação</button>
 					<button class="btn btn-danger ${Classes.BtnStopRecording}" style="display: none"><i class="bi bi-stop-fill"></i> Parar Gravação</button>
 					<div class="card mt-2 ${Classes.TranscriptionCard}" style="display: none">
@@ -51,8 +51,9 @@
 
 			// Função para iniciar a gravação
 			const StartRecording = () => {
+				jqThis.find(`.${Classes.convertToSpeechButton}`).prop("disabled", true); // Desabilitando o botão de conversão para fala
 				CommonApp.StartRecording(
-					"/api/openai/whisper",
+					"/api/azureai/stt",
 					(recorder) => {
 						mediaRecorder = recorder; // Armazenando o MediaRecorder
 						jqThis.find(`.${Classes.BtnStartRecording}`).hide(); // Escondendo o botão de iniciar gravação
@@ -63,6 +64,7 @@
 						ShowTranscription(transcription); // Exibindo a transcrição
 						jqThis.find(`.${Classes.BtnStartRecording}`).show(); // Mostrando o botão de iniciar gravação
 						jqThis.find(`.${Classes.BtnStopRecording}`).hide(); // Escondendo o botão de parar gravação
+						jqThis.find(`.${Classes.convertToSpeechButton}`).prop("disabled", false); // Habilitando o botão de conversão para fala
 					}
 				);
 			};

@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block title %}Serviços AzureAI{% endblock %}
+{% block head %}
+{% endblock %}
+{% block content %}
+<div id="azureAiStt" class="card my-2">
+	<div class="card-body">
+		<h1 class="card-title"><i class="bi bi-volume-up"></i> Speech to Text</h1>
+		<p class="card-text">Explore os serviços disponíveis:</p>
+
+		<!-- Bloco para o serviço de stt -->
+		<div class="card my-2">
+			<div class="card-body">
+				<div class="azureai-stt"></div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/extensions/jquery.stt.js" defer></script>
+<script src="/static/js/azureai/stt.js" defer></script>
+{% endblock %}

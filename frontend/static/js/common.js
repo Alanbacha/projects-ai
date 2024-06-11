@@ -21,7 +21,7 @@ const CommonApp = (() => {
 	};
 
 	// Função para iniciar a gravação de áudio
-	const StartRecording = async (setupRecording, stopRecording) => {
+	const StartRecording = async (urlApi, setupRecording, stopRecording) => {
 		if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 			const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); // Capturando o áudio do usuário
 			const mediaRecorder = new MediaRecorder(stream); // Inicializando o MediaRecorder
@@ -34,7 +34,7 @@ const CommonApp = (() => {
 				const formData = new FormData();
 				formData.append("file", audioBlob, "audio.webm"); // Adicionando o Blob ao FormData
 
-				const response = await fetch("/api/openai/whisper", { method: "POST", body: formData }); // Enviando o áudio para transcrição
+				const response = await fetch(urlApi, { method: "POST", body: formData }); // Enviando o áudio para transcrição
 
 				if (response.ok) {
 					const data = await response.json();
