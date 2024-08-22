@@ -3,3 +3,4 @@ jinja2
 openai
 python-dotenv
 uvicorn
+python-multipart
