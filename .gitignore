@@ -53,4 +53,4 @@ node_modules/
 .vscode/
 
 # Vendor (arquivos externos copiados para o projeto)
-frontend/static/vendor/
+#frontend/static/vendor/
